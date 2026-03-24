@@ -260,13 +260,13 @@ def rename_build(request, build_id):
             old_name = build.name
             build.name = new_name
             build.save()
-            messages.success(request, f'Сборка переименована: "{old_name}" → "{new_name}"')
+            messages.success(request, f'✅ Сборка переименована: "{old_name}" → "{new_name}"')
         else:
-            messages.error(request, 'Имя не может быть пустым')
+            messages.error(request, '❌ Имя не может быть пустым')
             
         return redirect('build_detail', build_id=build.id)
     
-    return redirect('build_detail', build_id=build_id)
+    return redirect('build_detail', build_id=build.id)
 
 def final_report(request, build_id):
     build = get_object_or_404(Build, id=build_id)
@@ -546,21 +546,3 @@ def like_build(request, build_id):
         'liked': liked,
         'likes_count': build.likes.count()
     })
-
-def rename_build(request, build_id):
-    """Переименование сборки"""
-    if request.method == 'POST':
-        build = get_object_or_404(Build, id=build_id)
-        new_name = request.POST.get('name', '').strip()
-        
-        if new_name:
-            old_name = build.name
-            build.name = new_name
-            build.save()
-            messages.success(request, f'✅ Сборка переименована: "{old_name}" → "{new_name}"')
-        else:
-            messages.error(request, '❌ Имя не может быть пустым')
-            
-        return redirect('build_detail', build_id=build.id)
-    
-    return redirect('build_detail', build_id=build_id)

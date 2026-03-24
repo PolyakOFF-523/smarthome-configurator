@@ -53,7 +53,7 @@
             <div class="card-header bg-primary text-white">
                 <h3 class="mb-0">⭐ Стандарт</h3>
                 <small class="d-block mt-1 opacity-75">
-                    <i class="bi bi-calendar3"></i> {{ builds.economy.created_at|date:"d.m.Y H:i" }}
+                    <i class="bi bi-calendar3"></i> {{ builds.standard.created_at|date:"d.m.Y H:i" }}
                 </small>
             </div>
             <div class="card-body">
@@ -67,7 +67,7 @@
                 </ul>
                 <hr>
                 <p class="mb-0 small">
-                    <strong>Энергопотребление:</strong> {{ builds.economy.total_power|floatformat:1 }} Вт
+                    <strong>Энергопотребление:</strong> {{ builds.standard.total_power|floatformat:1 }} Вт
                     <strong>Устройств:</strong> {{ builds.standard.buildcomponent_set.count }}
                 </p>
             </div>
@@ -85,7 +85,7 @@
             <div class="card-header bg-warning">
                 <h3 class="mb-0">👑 Премиум</h3>
                 <small class="d-block mt-1 opacity-75">
-                    <i class="bi bi-calendar3"></i> {{ builds.economy.created_at|date:"d.m.Y H:i" }}
+                    <i class="bi bi-calendar3"></i> {{ builds.premium.created_at|date:"d.m.Y H:i" }}
                 </small>
             </div>
             <div class="card-body">
@@ -117,7 +117,7 @@
             <div class="card-header bg-secondary text-white">
                 <h3 class="mb-0">🔧 Своя сборка</h3>
                 <small class="d-block mt-1 opacity-75">
-                    <i class="bi bi-calendar3"></i> {{ builds.economy.created_at|date:"d.m.Y H:i" }}
+                    <i class="bi bi-calendar3"></i> {{ builds.custom.created_at|date:"d.m.Y H:i" }}
                 </small>
             </div>
             <div class="card-body">

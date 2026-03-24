@@ -14,6 +14,7 @@
                         <i class="bi bi-pencil"></i>
                     </button>
                 </div>
+                <!-- Удалите этот блок или оставьте один из них -->
                 <div class="text-muted mt-1">
                     <i class="bi bi-calendar3"></i> Создана: {{ build.created_at|date:"d.m.Y H:i" }}
                 </div>
@@ -22,9 +23,10 @@
                 {{ build.get_price_segment_display }}
             </span>
         </div>
-        <div class="text-muted mb-3">
+        <!-- Удалите этот блок, так как он дублирует вывод даты -->
+        <!-- <div class="text-muted mb-3">
             <i class="bi bi-calendar3"></i> Создана: {{ build.created_at|date:"d.m.Y H:i" }}
-        </div>
+        </div> -->
         
         <!-- Прогресс сборки -->
         <div class="card mb-4">
@@ -43,13 +45,13 @@
                 {% if build.buildcomponent_set.exists %}
                     <table class="table table-hover">
                         <thead>
-                            <tr>
+                             <tr>
                                 <th>Комната</th>
                                 <th>Устройство</th>
                                 <th>Кол-во</th>
                                 <th>Цена</th>
                                 <th></th>
-                            </tr>
+                             </tr>
                         </thead>
                         <tbody>
                             {% for bc in build.buildcomponent_set.all %}
@@ -94,7 +96,8 @@
             </div>
         </div>
         
-                <!-- Информация о сборке и кнопки действий в современном стиле -->
+        <!-- Остальной код без изменений -->
+        <!-- Информация о сборке и кнопки действий в современном стиле -->
         <div class="row mt-4">
             <!-- Статистика сборки в карточках -->
             <div class="col-md-12 mb-4">
@@ -175,7 +178,7 @@
                 </div>
             </div>
             
-            <!-- Панель действий -->
+            <!-- Панель действий (остаётся без изменений) -->
             <div class="col-md-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
@@ -270,7 +273,8 @@
         </div>
     </div>
 </div>
-<!-- Модальное окно переименования -->
+
+<!-- Модальное окно переименования (без изменений) -->
 <div class="modal fade" id="renameModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
