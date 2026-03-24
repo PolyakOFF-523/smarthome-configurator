@@ -116,9 +116,11 @@
         <div class="card h-100">
             <div class="card-header bg-secondary text-white">
                 <h3 class="mb-0">🔧 Своя сборка</h3>
+                {% if builds.custom and builds.custom.created_at %}
                 <small class="d-block mt-1 opacity-75">
                     <i class="bi bi-calendar3"></i> {{ builds.custom.created_at|date:"d.m.Y H:i" }}
                 </small>
+                {% endif %}
             </div>
             <div class="card-body">
                 <h4>0 ₽</h4>
@@ -136,9 +138,15 @@
                 </p>
             </div>
             <div class="card-footer bg-transparent">
-                <a href="{% url 'select_build' builds.custom.id %}" class="btn btn-secondary w-100">
-                    Выбрать и настроить
-                </a>
+                {% if builds.custom %}
+                    <a href="{% url 'select_build' builds.custom.id %}" class="btn btn-secondary w-100">
+                        Выбрать и настроить
+                    </a>
+                {% else %}
+                    <a href="{% url 'start_project' %}" class="btn btn-secondary w-100">
+                        Создать сборку
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>

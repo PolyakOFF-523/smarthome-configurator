@@ -456,3 +456,18 @@ a img, button img {
     -khtml-user-drag: none;
     -moz-user-drag: none;
 }
+
+/* Стиль для кнопки выхода */
+.btn-logout {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    display: inline-block;
+    width: 100%;
+    text-align: left;
+}
+
+.btn-logout:hover {
+    background-color: var(--hover-bg);
+}

@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
 
+
 class Ecosystem(models.Model):
     """Экосистема умного дома (Яндекс, Xiaomi, Apple и т.д.)"""
     name = models.CharField("Название", max_length=100)
@@ -199,6 +200,13 @@ class UserProject(models.Model):
     rooms = models.ManyToManyField(Room)
     total_area = models.FloatField("Общая площадь")
     created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True,
+        related_name='projects'
+    )
 
 class Build(models.Model):
     """Готовая сборка"""
@@ -260,6 +268,14 @@ class Build(models.Model):
         blank=True,
         related_name='saved_builds',
         verbose_name='Сохранено пользователями'
+    )
+
+    user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True,
+        related_name='builds'
     )
 
 class BuildComponent(models.Model):

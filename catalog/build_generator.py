@@ -12,15 +12,24 @@ class BuildGenerator:
         builds['economy'] = self.generate_build('🌱 Эконом', 'ECONOMY', max_price=5000)
         builds['standard'] = self.generate_build('⭐ Стандарт', 'STANDARD', max_price=15000)
         builds['premium'] = self.generate_build('👑 Премиум', 'PREMIUM', max_price=50000)
-        builds['custom'] = Build.objects.create(name="🔧 Своя сборка", price_segment='ECONOMY', status='DRAFT')
+        builds['custom'] = Build.objects.create(
+            name="🔧 Своя сборка", 
+            price_segment='ECONOMY', 
+            status='DRAFT',
+            project=self.project,
+        )
         return builds
     
     def generate_build(self, name, segment, max_price):
-        # Добавляем дату в имя по умолчанию
+        # Проверяем, существует ли уже сборка для этого проекта с таким сегментом
+        existing_build = Build.objects.filter(project=self.project, price_segment=segment).first()
+        if existing_build:
+            return existing_build  # Возвращаем существующую, не создаём новую
+        
+        # Если не существует, создаём новую
         from datetime import datetime
         date_str = datetime.now().strftime('%d.%m.%Y')
         
-        # Более осмысленные имена по умолчанию
         default_names = {
             'ECONOMY': '🌱 Эконом',
             'STANDARD': '⭐ Стандарт',
@@ -34,9 +43,9 @@ class BuildGenerator:
             price_segment=segment, 
             status='DRAFT',
             is_selected=False,
-            project=self.project
+            project=self.project,
         )
-        
+
         # Найдём подходящий хаб
         hub = self._select_hub(segment, max_price)
         if hub:

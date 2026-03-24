@@ -194,24 +194,16 @@
                                 </a>
                             </div>
                             
-                            {% if build.status == 'VERIFIED' or build.status == 'SAVED' or build.status == 'CONFIGURING' %}
-                            <div class="col-md-3">
-                                <a href="{% url 'submit_to_moderation' build.id %}" class="btn btn-outline-warning w-100 py-3">
-                                    <i class="bi bi-send display-6 d-block mb-2"></i>
-                                    <span>На модерацию</span>
-                                    <small class="d-block text-muted">Отправить на проверку</small>
-                                </a>
-                            </div>
-                            {% endif %}
-                            
-                            {% if build.status == 'PENDING_MODERATION' %}
-                            <div class="col-md-3">
-                                <div class="btn btn-outline-secondary w-100 py-3 disabled">
-                                    <i class="bi bi-hourglass-split display-6 d-block mb-2"></i>
-                                    <span>На модерации</span>
-                                    <small class="d-block text-muted">Ожидает проверки</small>
+                            {% if user.is_authenticated and build.user == user %}
+                                {% if build.status == 'VERIFIED' or build.status == 'SAVED' or build.status == 'CONFIGURING' %}
+                                <div class="col-md-3">
+                                    <a href="{% url 'submit_to_moderation' build.id %}" class="btn btn-outline-warning w-100 py-3">
+                                        <i class="bi bi-send display-6 d-block mb-2"></i>
+                                        <span>На модерацию</span>
+                                        <small class="d-block text-muted">Отправить на проверку</small>
+                                    </a>
                                 </div>
-                            </div>
+                                {% endif %}
                             {% endif %}
                             
                             <div class="col-md-3">

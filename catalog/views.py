@@ -7,6 +7,9 @@ from .models import Ecosystem, Category, Component
 from .models import UserProject, Room, Build, BuildComponent
 from .build_generator import BuildGenerator
 from .compatibility import CompatibilityChecker
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 
 # ================ КАТАЛОГ ================
 
@@ -127,12 +130,18 @@ def start_project(request):
             if old_project_id:
                 try:
                     old_project = UserProject.objects.get(id=old_project_id)
+                    # Удаляем все сборки старого проекта
+                    Build.objects.filter(project=old_project).delete()
                     old_project.delete()
                 except UserProject.DoesNotExist:
                     pass
             
             total_area = sum(float(area) for area in room_areas if area)
-            project = UserProject.objects.create(total_area=total_area)
+            
+            project = UserProject.objects.create(
+                total_area=total_area,
+                user=request.user if request.user.is_authenticated else None
+            )
             
             for i in range(len(room_types)):
                 if room_types[i] and room_areas[i]:
@@ -144,6 +153,7 @@ def start_project(request):
             
             request.session['project_id'] = project.id
             
+            # Генерируем сборки только один раз
             generator = BuildGenerator(project)
             builds = generator.generate_all_builds()
             
@@ -160,8 +170,32 @@ def build_selection(request):
         return redirect('start_project')
     
     project = get_object_or_404(UserProject, id=project_id)
+    
+    # Получаем существующие сборки
+    builds = {
+        'economy': Build.objects.filter(project=project, price_segment='ECONOMY', name__icontains='Эконом').first(),
+        'standard': Build.objects.filter(project=project, price_segment='STANDARD', name__icontains='Стандарт').first(),
+        'premium': Build.objects.filter(project=project, price_segment='PREMIUM', name__icontains='Премиум').first(),
+        'custom': Build.objects.filter(project=project, name__icontains='Своя').first(),
+    }
+    
+    # Если какая-то сборка не найдена, создаём её
     generator = BuildGenerator(project)
-    builds = generator.generate_all_builds()
+    
+    if not builds['economy']:
+        builds['economy'] = generator.generate_build('🌱 Эконом', 'ECONOMY', max_price=5000)
+    if not builds['standard']:
+        builds['standard'] = generator.generate_build('⭐ Стандарт', 'STANDARD', max_price=15000)
+    if not builds['premium']:
+        builds['premium'] = generator.generate_build('👑 Премиум', 'PREMIUM', max_price=50000)
+    if not builds['custom']:
+        builds['custom'] = Build.objects.create(
+            name="🔧 Своя сборка", 
+            price_segment='ECONOMY', 
+            status='DRAFT',
+            project=project,
+            user=project.user if project.user else None
+        )
     
     # Добавляем даты создания для каждой сборки
     for key in builds:
@@ -177,6 +211,28 @@ def build_selection(request):
 def build_detail(request, build_id):
     build = get_object_or_404(Build, id=build_id)
     
+    # Проверка доступа
+    if request.user.is_authenticated:
+        # Авторизованный пользователь может редактировать только свои сборки
+        if build.user and build.user != request.user:
+            messages.error(request, 'У вас нет доступа к этой сборке')
+            return redirect('public_builds')
+    else:
+        # Неавторизованный пользователь может просматривать:
+        # 1. Публичные сборки
+        # 2. Свои сборки из сессии (созданные в текущей сессии)
+        project_id = request.session.get('project_id')
+        
+        # Проверяем, принадлежит ли сборка проекту из сессии
+        if build.project and build.project.id == project_id:
+            # Это сборка из текущей сессии, разрешаем
+            pass
+        elif build.status != 'PUBLISHED':
+            # Не публичная и не принадлежит сессии - запрещаем
+            messages.error(request, 'Доступ запрещён')
+            return redirect('index')
+    
+    # Если сборка в статусе DRAFT, переводим в CONFIGURING
     if build.status in ['DRAFT', 'VERIFIED', 'NEEDS_FIX', 'REJECTED']:
         build.status = 'CONFIGURING'
         build.save()
@@ -184,12 +240,9 @@ def build_detail(request, build_id):
     project_id = request.session.get('project_id')
     project = get_object_or_404(UserProject, id=project_id) if project_id else None
     
-    available_components = Component.objects.all()[:10]
-    
     context = {
         'build': build,
         'project': project,
-        'available_components': available_components,
     }
     return render(request, 'catalog/build_detail.html', context)
 
@@ -347,6 +400,15 @@ def moderation_detail(request, build_id):
 def submit_to_moderation(request, build_id):
     build = get_object_or_404(Build, id=build_id)
     
+    # Проверяем, что пользователь авторизован и является владельцем сборки
+    if not request.user.is_authenticated:
+        messages.error(request, 'Необходимо войти в систему для отправки на модерацию')
+        return redirect('login')
+    
+    if build.user != request.user:
+        messages.error(request, 'Вы не можете отправить на модерацию чужую сборку')
+        return redirect('build_detail', build_id=build.id)
+    
     if build.status in ['VERIFIED', 'SAVED', 'CONFIGURING']:
         build.status = 'PENDING_MODERATION'
         build.save()
@@ -360,13 +422,14 @@ def submit_to_moderation(request, build_id):
 # ================ УПРАВЛЕНИЕ СБОРКАМИ ================
 
 def my_builds(request):
-    selected_builds = Build.objects.filter(is_selected=True).order_by('-id')
-    active_builds = Build.objects.filter(
-        status__in=['CONFIGURING', 'NEEDS_FIX', 'PENDING_MODERATION', 'REJECTED']
-    ).order_by('-id')
-    all_builds = (selected_builds | active_builds).distinct()
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Войдите, чтобы просматривать свои сборки')
+        return redirect('login')
     
-    context = {'all_builds': all_builds}
+    # Получаем сборки текущего пользователя
+    builds = request.user.builds.all().order_by('-id')
+    
+    context = {'all_builds': builds}
     return render(request, 'catalog/my_builds.html', context)
 
 def delete_build(request, build_id):
@@ -414,6 +477,8 @@ def select_build(request, build_id):
     
     build.is_selected = True
     build.status = 'CONFIGURING'
+    if request.user.is_authenticated:
+        build.user = request.user   # привязываем к пользователю
     build.save()
     
     messages.success(request, f'✅ Вы выбрали сборку "{build.name}". Теперь её можно настраивать!')
@@ -546,3 +611,23 @@ def like_build(request, build_id):
         'liked': liked,
         'likes_count': build.likes.count()
     })
+
+# ================ ПОЛЬЗОВАТЕЛИ ================
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Регистрация прошла успешно!')
+            return redirect('index')
+        else:
+            # Выводим конкретные ошибки
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = UserCreationForm()
+    
+    return render(request, 'catalog/register.html', {'form': form})

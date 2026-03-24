@@ -137,3 +137,42 @@ TEMPLATES = [
         },
     },
 ]
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'index'
+LOGOUT_REDIRECT_URL = 'index'
+
+# Русские сообщения об ошибках пароля
+from django.contrib.auth.password_validation import (
+    MinimumLengthValidator,
+    CommonPasswordValidator,
+    NumericPasswordValidator,
+)
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'OPTIONS': {
+            'message': 'Пароль слишком похож на имя пользователя.',
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+            'message': 'Пароль должен содержать не менее 8 символов.',
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'OPTIONS': {
+            'message': 'Этот пароль слишком распространённый.',
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'OPTIONS': {
+            'message': 'Пароль не может состоять только из цифр.',
+        }
+    },
+]
