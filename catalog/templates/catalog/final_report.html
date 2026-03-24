@@ -1,0 +1,100 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Отчет по сборке{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>📊 Финальный отчет по сборке</h1>
+        <p class="lead">{{ build.name }}</p>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-primary mb-3">
+                    <div class="card-header">Общая стоимость</div>
+                    <div class="card-body">
+                        <h3 class="card-title">{{ build.total_price|floatformat:0 }} ₽</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-warning mb-3">
+                    <div class="card-header">Энергопотребление</div>
+                    <div class="card-body">
+                        <h3 class="card-title">{{ build.total_power|floatformat:1 }} Вт</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-header">Устройств в сборке</div>
+                    <div class="card-body">
+                        <h3 class="card-title">{{ build.buildcomponent_set.count }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3>🏠 Расстановка устройств по комнатам</h3>
+            </div>
+            <div class="card-body">
+                {% for advice in placement_advice %}
+                <div class="room-advice mb-4 p-3 border rounded">
+                    <h4>{{ advice.room }}</h4>
+                    
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Устройство</th>
+                                <th>Кол-во</th>
+                                <th>Потребление</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comp in advice.components %}
+                            <tr>
+                                <td>{{ comp.component.name }}</td>
+                                <td>{{ comp.quantity }}</td>
+                                <td>{{ comp.component.power_consumption_watts|floatformat:1 }} Вт</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    {% if advice.tips %}
+                    <div class="tips mt-2">
+                        <h5>💡 Советы:</h5>
+                        <ul>
+                            {% for tip in advice.tips %}
+                            <li>{{ tip }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-muted">Нет данных по расстановке</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="{% url 'build_detail' build.id %}" class="btn btn-primary">
+                ← Вернуться к сборке
+            </a>
+            <button onclick="window.print()" class="btn btn-secondary">
+                🖨️ Сохранить отчет
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .navbar, .btn, footer { display: none; }
+    .card { border: 1px solid #000; }
+}
+</style>
+{% endblock %}

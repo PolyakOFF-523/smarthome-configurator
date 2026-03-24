@@ -1,0 +1,52 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}Умный дом - подбор комплектующих{% endblock %}
+
+{% block content %}
+<!-- Hero секция с кнопкой подбора сборок -->
+<div class="px-4 py-5 my-5 text-center bg-light rounded-3">
+    <h1 class="display-5 fw-bold">🏠 Умный дом под ваш стиль жизни</h1>
+    <div class="col-lg-6 mx-auto">
+        <p class="lead mb-4">
+            Ответьте на несколько вопросов о вашей квартире, 
+            и мы подберем идеальную сборку умного дома.
+        </p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="{% url 'new_project' %}" class="btn btn-primary btn-lg px-5 py-3">
+                🚀 Подобрать сборку
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Быстрая навигация -->
+<div class="row g-4 mt-2">
+    <div class="col-md-6">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center p-4">
+                <h3><i class="bi bi-people"></i> Сборки умного дома</h3>
+                <p>Готовые решения от других пользователей</p>
+                <a href="{% url 'public_builds' %}" class="btn btn-light">Смотреть сборки →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center p-4">
+                <h3><i class="bi bi-search"></i> Мои сборки</h3>
+                <p>Продолжить настройку или посмотреть статус</p>
+                <a href="{% url 'my_builds' %}" class="btn btn-light">Перейти →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Информационное сообщение о разработке (маленькое, не навязчивое) -->
+<div class="text-center mt-3">
+    <small class="text-muted">
+        <i class="bi bi-info-circle"></i> 
+        Раздел "Экосистемы умного дома" находится в разработке
+    </small>
+</div>
+{% endblock %}

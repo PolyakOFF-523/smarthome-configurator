@@ -1,0 +1,923 @@
+[
+  {
+    "model": "catalog.ecosystem",
+    "pk": 1,
+    "fields": {
+      "name": "Яндекс",
+      "slug": "yandex",
+      "description": "Умный дом с Алисой — самая популярная экосистема в России",
+      "website": "https://yandex.ru",
+      "order": 1
+    }
+  },
+  {
+    "model": "catalog.ecosystem",
+    "pk": 2,
+    "fields": {
+      "name": "Xiaomi",
+      "slug": "xiaomi",
+      "description": "Mi Home — огромный выбор устройств по доступным ценам",
+      "website": "https://www.mi.com",
+      "order": 2
+    }
+  },
+  {
+    "model": "catalog.ecosystem",
+    "pk": 3,
+    "fields": {
+      "name": "Apple",
+      "slug": "apple",
+      "description": "HomeKit — премиальная экосистема для устройств Apple",
+      "website": "https://www.apple.com",
+      "order": 3
+    }
+  },
+  {
+    "model": "catalog.ecosystem",
+    "pk": 4,
+    "fields": {
+      "name": "Aqara",
+      "slug": "aqara",
+      "description": "Умные устройства премиум-класса, совместимые с разными экосистемами",
+      "website": "https://www.aqara.com",
+      "order": 4
+    }
+  },
+  {
+    "model": "catalog.ecosystem",
+    "pk": 5,
+    "fields": {
+      "name": "Sber",
+      "slug": "sber",
+      "description": "Умный дом с Салютом",
+      "website": "https://www.sberbank.ru",
+      "order": 5
+    }
+  },
+  {
+    "model": "catalog.ecosystem",
+    "pk": 6,
+    "fields": {
+      "name": "Huawei",
+      "slug": "huawei",
+      "description": "Huawei HiLink — умный дом от Huawei",
+      "website": "https://www.huawei.com",
+      "order": 6
+    }
+  },
+  {
+    "model": "catalog.ecosystem",
+    "pk": 7,
+    "fields": {
+      "name": "Tuya",
+      "slug": "tuya",
+      "description": "Универсальная платформа для умного дома Smart Life",
+      "website": "https://www.tuya.com",
+      "order": 7
+    }
+  },
+  {
+    "model": "catalog.ecosystem",
+    "pk": 8,
+    "fields": {
+      "name": "Samsung",
+      "slug": "samsung",
+      "description": "Samsung SmartThings",
+      "website": "https://www.samsung.com",
+      "order": 8
+    }
+  },
+  {
+    "model": "catalog.ecosystem",
+    "pk": 9,
+    "fields": {
+      "name": "TP-Link Tapo",
+      "slug": "tp-link",
+      "description": "Tapo — умный дом от TP-Link",
+      "website": "https://www.tp-link.com",
+      "order": 9
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 1,
+    "fields": {
+      "name": "Центры управления (хабы)",
+      "slug": "hubs",
+      "icon": "bi-cpu",
+      "description": "",
+      "parent": null,
+      "order": 1
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 2,
+    "fields": {
+      "name": "Умные колонки",
+      "slug": "smart-speakers",
+      "icon": "bi-speaker",
+      "description": "",
+      "parent": null,
+      "order": 2
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 3,
+    "fields": {
+      "name": "Умные датчики",
+      "slug": "sensors",
+      "icon": "bi-sensor",
+      "description": "",
+      "parent": null,
+      "order": 3
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 4,
+    "fields": {
+      "name": "Умный свет",
+      "slug": "smart-lighting",
+      "icon": "bi-lightbulb",
+      "description": "",
+      "parent": null,
+      "order": 4
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 5,
+    "fields": {
+      "name": "Умные камеры",
+      "slug": "cameras",
+      "icon": "bi-camera-video",
+      "description": "",
+      "parent": null,
+      "order": 5
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 6,
+    "fields": {
+      "name": "Умная электрика",
+      "slug": "electrics",
+      "icon": "bi-power",
+      "description": "",
+      "parent": null,
+      "order": 6
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 7,
+    "fields": {
+      "name": "Климатическая техника",
+      "slug": "climate",
+      "icon": "bi-wind",
+      "description": "",
+      "parent": null,
+      "order": 7
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 8,
+    "fields": {
+      "name": "Техника для кухни",
+      "slug": "kitchen",
+      "icon": "bi-cup-hot",
+      "description": "",
+      "parent": null,
+      "order": 8
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 9,
+    "fields": {
+      "name": "Стиральные машины",
+      "slug": "washing",
+      "icon": "bi-droplet",
+      "description": "",
+      "parent": null,
+      "order": 9
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 10,
+    "fields": {
+      "name": "Датчики движения",
+      "slug": "motion-sensors",
+      "icon": "bi-person-walking",
+      "description": "",
+      "parent": 3,
+      "order": 1
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 11,
+    "fields": {
+      "name": "Датчики открытия",
+      "slug": "door-sensors",
+      "icon": "bi-door-open",
+      "description": "",
+      "parent": 3,
+      "order": 2
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 12,
+    "fields": {
+      "name": "Датчики температуры",
+      "slug": "climate-sensors",
+      "icon": "bi-thermometer-half",
+      "description": "",
+      "parent": 3,
+      "order": 3
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 13,
+    "fields": {
+      "name": "Датчики протечки",
+      "slug": "leak-sensors",
+      "icon": "bi-droplet",
+      "description": "",
+      "parent": 3,
+      "order": 4
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 14,
+    "fields": {
+      "name": "Умные лампы",
+      "slug": "smart-bulbs",
+      "icon": "bi-lightbulb",
+      "description": "",
+      "parent": 4,
+      "order": 1
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 15,
+    "fields": {
+      "name": "Умные розетки",
+      "slug": "smart-plugs",
+      "icon": "bi-plug",
+      "description": "",
+      "parent": 6,
+      "order": 1
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 16,
+    "fields": {
+      "name": "Умные выключатели",
+      "slug": "smart-switches",
+      "icon": "bi-toggle-on",
+      "description": "",
+      "parent": 6,
+      "order": 2
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 1,
+    "fields": {
+      "name": "Яндекс Станция Макс",
+      "slug": "yandex-station-max",
+      "ecosystem": 1,
+      "category": 2,
+      "protocol": "WIFI",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 25,
+      "price": 15990,
+      "requires_hub": false,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": true,
+      "description": "Флагманская умная колонка с Алисой. Мощный звук, Zigbee-хаб внутри.",
+      "compatible_with": []
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 2,
+    "fields": {
+      "name": "Яндекс Станция Лайт",
+      "slug": "yandex-station-lite",
+      "ecosystem": 1,
+      "category": 2,
+      "protocol": "WIFI",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 15,
+      "price": 3990,
+      "requires_hub": false,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Компактная умная колонка с Алисой и LED-экранами.",
+      "compatible_with": []
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 3,
+    "fields": {
+      "name": "Яндекс Станция Мини",
+      "slug": "yandex-station-mini",
+      "ecosystem": 1,
+      "category": 2,
+      "protocol": "WIFI",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 10,
+      "price": 2990,
+      "requires_hub": false,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Компактная колонка с Алисой, удобная для небольших комнат.",
+      "compatible_with": []
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 4,
+    "fields": {
+      "name": "Яндекс Станция Мини с часами",
+      "slug": "yandex-station-mini-clock",
+      "ecosystem": 1,
+      "category": 2,
+      "protocol": "WIFI",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 12,
+      "price": 3990,
+      "requires_hub": false,
+      "in_stock": true,
+      "is_popular": false,
+      "is_new": true,
+      "description": "Колонка с Алисой и LED-дисплеем, показывает время.",
+      "compatible_with": []
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 5,
+    "fields": {
+      "name": "Яндекс Розетка",
+      "slug": "yandex-plug",
+      "ecosystem": 1,
+      "category": 15,
+      "protocol": "WIFI",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 1,
+      "price": 1290,
+      "requires_hub": false,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Умная розетка с контролем энергопотребления.",
+      "compatible_with": []
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 6,
+    "fields": {
+      "name": "Яндекс Розетка 2",
+      "slug": "yandex-plug-2",
+      "ecosystem": 1,
+      "category": 15,
+      "protocol": "WIFI",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 1,
+      "price": 1490,
+      "requires_hub": false,
+      "in_stock": true,
+      "is_popular": false,
+      "is_new": true,
+      "description": "Новая умная розетка с расширенным функционалом.",
+      "compatible_with": []
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 7,
+    "fields": {
+      "name": "Яндекс Датчик движения",
+      "slug": "yandex-motion-sensor",
+      "ecosystem": 1,
+      "category": 10,
+      "protocol": "ZIGBEE",
+      "power_source": "BATTERY",
+      "range_meters": 8,
+      "power_consumption_watts": 0.1,
+      "price": 1490,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Датчик движения, работает через Zigbee.",
+      "compatible_with": [1,2,3,4]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 8,
+    "fields": {
+      "name": "Яндекс Датчик открытия",
+      "slug": "yandex-door-sensor",
+      "ecosystem": 1,
+      "category": 11,
+      "protocol": "ZIGBEE",
+      "power_source": "BATTERY",
+      "range_meters": 0,
+      "power_consumption_watts": 0.1,
+      "price": 1390,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Датчик открытия дверей и окон.",
+      "compatible_with": [1,2,3,4]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 9,
+    "fields": {
+      "name": "Яндекс Датчик температуры",
+      "slug": "yandex-temp-sensor",
+      "ecosystem": 1,
+      "category": 12,
+      "protocol": "ZIGBEE",
+      "power_source": "BATTERY",
+      "range_meters": 0,
+      "power_consumption_watts": 0.1,
+      "price": 1590,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": true,
+      "description": "Датчик температуры и влажности.",
+      "compatible_with": [1,2,3,4]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 10,
+    "fields": {
+      "name": "Яндекс Лампочка",
+      "slug": "yandex-bulb",
+      "ecosystem": 1,
+      "category": 14,
+      "protocol": "ZIGBEE",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 9,
+      "price": 1990,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Умная лампочка с регулировкой яркости.",
+      "compatible_with": [1,2,3,4]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 11,
+    "fields": {
+      "name": "Яндекс Лампочка RGB",
+      "slug": "yandex-bulb-rgb",
+      "ecosystem": 1,
+      "category": 14,
+      "protocol": "ZIGBEE",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 10,
+      "price": 2490,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": true,
+      "description": "Умная лампочка с цветной RGB-подсветкой.",
+      "compatible_with": [1,2,3,4]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 12,
+    "fields": {
+      "name": "Яндекс Выключатель",
+      "slug": "yandex-switch",
+      "ecosystem": 1,
+      "category": 16,
+      "protocol": "ZIGBEE",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 1,
+      "price": 2290,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": false,
+      "is_new": false,
+      "description": "Умный выключатель света.",
+      "compatible_with": [1,2,3,4]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 13,
+    "fields": {
+      "name": "Яндекс Пульт",
+      "slug": "yandex-remote",
+      "ecosystem": 1,
+      "category": 1,
+      "protocol": "ZIGBEE",
+      "power_source": "BATTERY",
+      "range_meters": 10,
+      "power_consumption_watts": 0.1,
+      "price": 1290,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": false,
+      "is_new": false,
+      "description": "Беспроводной пульт для управления умным домом.",
+      "compatible_with": [1,2,3,4]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 14,
+    "fields": {
+      "name": "Xiaomi Mi Smart Speaker",
+      "slug": "xiaomi-mi-smart-speaker",
+      "ecosystem": 2,
+      "category": 2,
+      "protocol": "WIFI",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 10,
+      "price": 2490,
+      "requires_hub": false,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Умная колонка с Mi Home, IR-пульт.",
+      "compatible_with": []
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 15,
+    "fields": {
+      "name": "Xiaomi Mi Home Hub",
+      "slug": "xiaomi-mi-home-hub",
+      "ecosystem": 2,
+      "category": 1,
+      "protocol": "ZIGBEE",
+      "power_source": "USB",
+      "range_meters": 30,
+      "power_consumption_watts": 2,
+      "price": 2990,
+      "requires_hub": false,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Центральный хаб для Zigbee устройств Xiaomi.",
+      "compatible_with": []
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 16,
+    "fields": {
+      "name": "Xiaomi Motion Sensor",
+      "slug": "xiaomi-motion-sensor",
+      "ecosystem": 2,
+      "category": 10,
+      "protocol": "ZIGBEE",
+      "power_source": "BATTERY",
+      "range_meters": 7,
+      "power_consumption_watts": 0.1,
+      "price": 890,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Компактный датчик движения, батарейка до 2 лет.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 17,
+    "fields": {
+      "name": "Xiaomi Door/Window Sensor",
+      "slug": "xiaomi-door-sensor",
+      "ecosystem": 2,
+      "category": 11,
+      "protocol": "ZIGBEE",
+      "power_source": "BATTERY",
+      "range_meters": 0,
+      "power_consumption_watts": 0.1,
+      "price": 790,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Датчик открытия дверей и окон.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 18,
+    "fields": {
+      "name": "Xiaomi Temperature and Humidity Sensor",
+      "slug": "xiaomi-temp-sensor",
+      "ecosystem": 2,
+      "category": 12,
+      "protocol": "ZIGBEE",
+      "power_source": "BATTERY",
+      "range_meters": 0,
+      "power_consumption_watts": 0.1,
+      "price": 690,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Датчик температуры и влажности с дисплеем.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 19,
+    "fields": {
+      "name": "Xiaomi Water Leak Sensor",
+      "slug": "xiaomi-leak-sensor",
+      "ecosystem": 2,
+      "category": 13,
+      "protocol": "ZIGBEE",
+      "power_source": "BATTERY",
+      "range_meters": 0,
+      "power_consumption_watts": 0.1,
+      "price": 890,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": false,
+      "is_new": false,
+      "description": "Датчик протечки воды.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 20,
+    "fields": {
+      "name": "Xiaomi Smoke Detector",
+      "slug": "xiaomi-smoke-detector",
+      "ecosystem": 2,
+      "category": 3,
+      "protocol": "ZIGBEE",
+      "power_source": "BATTERY",
+      "range_meters": 0,
+      "power_consumption_watts": 0.1,
+      "price": 1990,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": false,
+      "is_new": false,
+      "description": "Датчик дыма, звуковая сирена.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 21,
+    "fields": {
+      "name": "Xiaomi Gas Detector",
+      "slug": "xiaomi-gas-detector",
+      "ecosystem": 2,
+      "category": 3,
+      "protocol": "ZIGBEE",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 1,
+      "price": 2490,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": false,
+      "is_new": false,
+      "description": "Датчик утечки газа.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 22,
+    "fields": {
+      "name": "Xiaomi Smart Bulb Essential",
+      "slug": "xiaomi-smart-bulb",
+      "ecosystem": 2,
+      "category": 14,
+      "protocol": "ZIGBEE",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 9,
+      "price": 1290,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Умная лампа с регулировкой яркости, E27.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 23,
+    "fields": {
+      "name": "Xiaomi Smart Bulb Color",
+      "slug": "xiaomi-smart-bulb-color",
+      "ecosystem": 2,
+      "category": 14,
+      "protocol": "ZIGBEE",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 10,
+      "price": 1790,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": true,
+      "description": "Умная лампа с цветной RGB-подсветкой.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 24,
+    "fields": {
+      "name": "Xiaomi Smart Plug",
+      "slug": "xiaomi-smart-plug",
+      "ecosystem": 2,
+      "category": 15,
+      "protocol": "ZIGBEE",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 1,
+      "price": 990,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Умная розетка с контролем энергопотребления.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 25,
+    "fields": {
+      "name": "Xiaomi Smart Plug Pro",
+      "slug": "xiaomi-smart-plug-pro",
+      "ecosystem": 2,
+      "category": 15,
+      "protocol": "ZIGBEE",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 1,
+      "price": 1490,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": false,
+      "is_new": false,
+      "description": "Умная розетка с USB-портами.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 26,
+    "fields": {
+      "name": "Xiaomi Smart Switch 1 Gang",
+      "slug": "xiaomi-switch-1",
+      "ecosystem": 2,
+      "category": 16,
+      "protocol": "ZIGBEE",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 1,
+      "price": 1290,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": false,
+      "is_new": false,
+      "description": "Умный выключатель на одну клавишу.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 27,
+    "fields": {
+      "name": "Xiaomi Smart Switch 2 Gang",
+      "slug": "xiaomi-switch-2",
+      "ecosystem": 2,
+      "category": 16,
+      "protocol": "ZIGBEE",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 1,
+      "price": 1590,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": false,
+      "is_new": false,
+      "description": "Умный выключатель на две клавиши.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 28,
+    "fields": {
+      "name": "Xiaomi Curtain Driver",
+      "slug": "xiaomi-curtain-driver",
+      "ecosystem": 2,
+      "category": 6,
+      "protocol": "ZIGBEE",
+      "power_source": "BATTERY",
+      "range_meters": 0,
+      "power_consumption_watts": 2,
+      "price": 3990,
+      "requires_hub": true,
+      "in_stock": true,
+      "is_popular": false,
+      "is_new": true,
+      "description": "Робот для автоматического открытия штор.",
+      "compatible_with": [15]
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 29,
+    "fields": {
+      "name": "Xiaomi Vacuum Cleaner S10",
+      "slug": "xiaomi-vacuum-s10",
+      "ecosystem": 2,
+      "category": 7,
+      "protocol": "WIFI",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 40,
+      "price": 18990,
+      "requires_hub": false,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": false,
+      "description": "Робот-пылесос с лазерной навигацией.",
+      "compatible_with": []
+    }
+  },
+  {
+    "model": "catalog.component",
+    "pk": 30,
+    "fields": {
+      "name": "Xiaomi Vacuum Cleaner S12",
+      "slug": "xiaomi-vacuum-s12",
+      "ecosystem": 2,
+      "category": 7,
+      "protocol": "WIFI",
+      "power_source": "MAINS",
+      "range_meters": 0,
+      "power_consumption_watts": 45,
+      "price": 24990,
+      "requires_hub": false,
+      "in_stock": true,
+      "is_popular": true,
+      "is_new": true,
+      "description": "Робот-пылесос с влажной уборкой и самоочисткой.",
+      "compatible_with": []
+    }
+  }
+]

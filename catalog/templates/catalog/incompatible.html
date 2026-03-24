@@ -1,0 +1,52 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Ошибка совместимости{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3>⚠️ Проблемы совместимости</h3>
+            </div>
+            <div class="card-body">
+                <h4>Устройство: {{ component.name }}</h4>
+                <p>Комната: {{ room.get_name_display }}</p>
+                
+                <div class="alert alert-danger">
+                    <h5>Найдены проблемы:</h5>
+                    <ul>
+                        {% for issue in issues %}
+                        <li>{{ issue }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+                {% if alternative %}
+                <div class="alert alert-success mt-4">
+                    <h5>✅ Рекомендуемая альтернатива:</h5>
+                    <p><strong>{{ alternative.name }}</strong></p>
+                    <p>Цена: {{ alternative.price }} ₽</p>
+                    <p>Протокол: {{ alternative.get_protocol_display }}</p>
+                    <p>Радиус: {{ alternative.range_meters }} м</p>
+                    
+                    <form method="post" action="{% url 'check_compatibility' build.id alternative.id room.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="distance" value="{{ request.POST.distance }}">
+                        <button type="submit" class="btn btn-success">
+                            Использовать альтернативу
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+                
+                <div class="mt-4">
+                    <a href="{% url 'build_detail' build.id %}" class="btn btn-primary">
+                        ← Вернуться к сборке
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

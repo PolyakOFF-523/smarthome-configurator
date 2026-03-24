@@ -1,0 +1,153 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Выберите сборку{% endblock %}
+
+{% block content %}
+<!-- Краткая информация о квартире -->
+<div class="alert alert-info text-center mb-4">
+    <i class="bi bi-house"></i> 
+    Квартира {{ project.total_area }} м², 
+    {% for room in project.rooms.all %}
+        {{ room.get_name_display }} ({{ room.area }} м²){% if not forloop.last %}, {% endif %}
+    {% endfor %}
+</div>
+
+<h1 class="text-center mb-4">Выберите подходящую сборку</h1>
+
+<div class="row">
+    <!-- Эконом -->
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">🌱 Эконом</h3>
+                <small class="d-block mt-1 opacity-75">
+                    <i class="bi bi-calendar3"></i> {{ builds.economy.created_at|date:"d.m.Y H:i" }}
+                </small>
+            </div>
+            <div class="card-body">
+                <h4>{{ builds.economy.total_price|floatformat:0 }} ₽</h4>
+                <p class="text-muted small">Базовый набор для знакомства</p>
+                <ul class="list-unstyled">
+                    <li>✓ Основные датчики</li>
+                    <li>✓ Базовое освещение</li>
+                    <li class="text-muted">✗ Датчики климата</li>
+                    <li class="text-muted">✗ Камеры</li>
+                </ul>
+                <hr>
+                <p class="mb-0 small">
+                    <strong>Энергопотребление:</strong> {{ builds.economy.total_power|floatformat:1 }} Вт<br>
+                    <strong>Устройств:</strong> {{ builds.economy.buildcomponent_set.count }}
+                </p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="{% url 'select_build' builds.economy.id %}" class="btn btn-success w-100">
+                    Выбрать и настроить
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Стандарт -->
+    <div class="col-md-3">
+        <div class="card h-100 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">⭐ Стандарт</h3>
+                <small class="d-block mt-1 opacity-75">
+                    <i class="bi bi-calendar3"></i> {{ builds.economy.created_at|date:"d.m.Y H:i" }}
+                </small>
+            </div>
+            <div class="card-body">
+                <h4>{{ builds.standard.total_price|floatformat:0 }} ₽</h4>
+                <p class="text-muted small">Оптимальный набор для комфорта</p>
+                <ul class="list-unstyled">
+                    <li>✓ Все датчики</li>
+                    <li>✓ Умное освещение</li>
+                    <li>✓ Датчики климата</li>
+                    <li class="text-muted">✗ Камеры</li>
+                </ul>
+                <hr>
+                <p class="mb-0 small">
+                    <strong>Энергопотребление:</strong> {{ builds.economy.total_power|floatformat:1 }} Вт
+                    <strong>Устройств:</strong> {{ builds.standard.buildcomponent_set.count }}
+                </p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="{% url 'select_build' builds.standard.id %}" class="btn btn-primary w-100">
+                    Выбрать и настроить
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Премиум -->
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-header bg-warning">
+                <h3 class="mb-0">👑 Премиум</h3>
+                <small class="d-block mt-1 opacity-75">
+                    <i class="bi bi-calendar3"></i> {{ builds.economy.created_at|date:"d.m.Y H:i" }}
+                </small>
+            </div>
+            <div class="card-body">
+                <h4>{{ builds.premium.total_price|floatformat:0 }} ₽</h4>
+                <p class="text-muted small">Максимальная автоматизация</p>
+                <ul class="list-unstyled">
+                    <li>✓ Все категории устройств</li>
+                    <li>✓ Камеры и безопасность</li>
+                    <li>✓ Климат-контроль</li>
+                    <li>✓ Умные розетки</li>
+                </ul>
+                <hr>
+                <p class="mb-0 small">
+                    <strong>Энергопотребление:</strong> {{ builds.premium.total_power|floatformat:1 }} Вт<br>
+                    <strong>Устройств:</strong> {{ builds.premium.buildcomponent_set.count }}
+                </p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="{% url 'select_build' builds.premium.id %}" class="btn btn-warning w-100">
+                    Выбрать и настроить
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Своя сборка -->
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-header bg-secondary text-white">
+                <h3 class="mb-0">🔧 Своя сборка</h3>
+                <small class="d-block mt-1 opacity-75">
+                    <i class="bi bi-calendar3"></i> {{ builds.economy.created_at|date:"d.m.Y H:i" }}
+                </small>
+            </div>
+            <div class="card-body">
+                <h4>0 ₽</h4>
+                <p class="text-muted small">Соберите сами</p>
+                <ul class="list-unstyled">
+                    <li>✓ Полная свобода выбора</li>
+                    <li>✓ Проверка совместимости</li>
+                    <li>✓ Рекомендации AI</li>
+                    <li>✓ Расчёт энергопотребления</li>
+                </ul>
+                <hr>
+                <p class="mb-0 small">
+                    <strong>Цена:</strong> От 0 ₽<br>
+                    <strong>Состав:</strong> Любой
+                </p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="{% url 'select_build' builds.custom.id %}" class="btn btn-secondary w-100">
+                    Выбрать и настроить
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Кнопка для возврата к вводу параметров -->
+<div class="text-center mt-4">
+    <a href="{% url 'start_project' %}" class="btn btn-outline-secondary">
+        ← Изменить параметры квартиры
+    </a>
+</div>
+{% endblock %}

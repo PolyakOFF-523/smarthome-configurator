@@ -1,0 +1,70 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Сборки пользователей{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">🏘️ Сборки умного дома от других пользователей</h1>
+
+<!-- Фильтры -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Экосистема</label>
+                <select name="ecosystem" class="form-select">
+                    <option value="">Все</option>
+                    {% for eco in ecosystems %}
+                    <option value="{{ eco.slug }}" {% if request.GET.ecosystem == eco.slug %}selected{% endif %}>
+                        {{ eco.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Цена от</label>
+                <input type="number" name="min_price" class="form-control" value="{{ request.GET.min_price }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Цена до</label>
+                <input type="number" name="max_price" class="form-control" value="{{ request.GET.max_price }}">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Применить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Сетка сборок -->
+<div class="row g-4">
+    {% for build in builds %}
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">{{ build.name }}</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    <i class="bi bi-person"></i> Пользователь #{{ build.project.id|default:"—" }}<br>
+                    <i class="bi bi-eye"></i> {{ build.views_count }} просмотров<br>
+                    <i class="bi bi-heart"></i> <span class="likes-count-{{ build.id }}">{{ build.likes.count }}</span> лайков
+                </p>
+                <p><strong>Сегмент:</strong> {{ build.get_price_segment_display }}</p>
+                <p><strong>Стоимость:</strong> {{ build.total_price|floatformat:0 }} ₽</p>
+                <p><strong>Устройств:</strong> {{ build.buildcomponent_set.count }}</p>
+                
+                <a href="{% url 'public_build_detail' build.id %}" class="btn btn-outline-primary w-100">
+                    Посмотреть сборку
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            Пока нет опубликованных сборок. Будьте первым!
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

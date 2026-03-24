@@ -1,0 +1,335 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Мои сборки{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">📦 Мои сборки</h1>
+
+<ul class="nav nav-tabs mb-4" id="buildTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+            Все сборки
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+            На модерации
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="published-tab" data-bs-toggle="tab" data-bs-target="#published" type="button" role="tab">
+            Опубликованные
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">
+            Отклонённые
+        </button>
+    </li>
+</ul>
+
+<!-- Панель массовых действий -->
+<div class="card mb-4" id="bulk-actions-panel" style="display: none;">
+    <div class="card-body bg-light">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <strong>Выбрано: <span id="selected-count">0</span></strong>
+            </div>
+            <div class="col-md-6 text-end">
+                <button type="button" class="btn btn-danger" id="bulk-delete-btn" data-bs-toggle="modal" data-bs-target="#bulkDeleteModal">
+                    <i class="bi bi-trash"></i> Удалить выбранные
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="select-all-btn">
+                    Выбрать все
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="deselect-all-btn" style="display: none;">
+                    Снять все
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content" id="buildTabContent">
+    <!-- Вкладка "Все сборки" -->
+    <div class="tab-pane fade show active" id="all" role="tabpanel">
+        {% if all_builds %}
+            <form id="bulk-delete-form" method="post" action="{% url 'bulk_delete_builds' %}">
+                {% csrf_token %}
+                <div class="row" id="builds-container">
+                    {% for build in all_builds %}
+                    <div class="col-md-6 mb-3 build-item" data-build-id="{{ build.id }}">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <input type="checkbox" name="build_ids" value="{{ build.id }}" 
+                                        class="form-check-input me-3 build-checkbox" style="width: 20px; height: 20px;">
+                                    <h5 class="mb-0">{{ build.name }}</h5>
+                                </div>
+                                <div>
+                                    {% if build.status == 'PENDING_MODERATION' %}
+                                        <span class="badge bg-warning">На модерации</span>
+                                    {% elif build.status == 'PUBLISHED' %}
+                                        <span class="badge bg-success">Опубликована</span>
+                                    {% elif build.status == 'REJECTED' %}
+                                        <span class="badge bg-danger">Отклонена</span>
+                                    {% elif build.status == 'DRAFT' %}
+                                        <span class="badge bg-secondary">Черновик</span>
+                                    {% elif build.status == 'CONFIGURING' %}
+                                        <span class="badge bg-primary">В настройке</span>
+                                    {% elif build.status == 'NEEDS_FIX' %}
+                                        <span class="badge bg-warning">Требует исправления</span>
+                                    {% elif build.status == 'VERIFIED' %}
+                                        <span class="badge bg-info">Проверена</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <p><strong>Сегмент:</strong> {{ build.get_price_segment_display }}</p>
+                                        <p><strong>Стоимость:</strong> {{ build.total_price }} ₽</p>
+                                        <p><strong>Устройств:</strong> {{ build.buildcomponent_set.count }}</p>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar3"></i> {{ build.created_at|date:"d.m.Y H:i" }}
+                                    </small>
+                                </div>
+                                
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a href="{% url 'build_detail' build.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Подробнее
+                                    </a>
+                                    
+                                    {% if build.status == 'REJECTED' %}
+                                        <a href="{% url 'build_detail' build.id %}" class="btn btn-sm btn-warning">
+                                            <i class="bi bi-pencil"></i> Исправить
+                                        </a>
+                                    {% endif %}
+                                    
+                                    {% if build.status == 'VERIFIED' or build.status == 'SAVED' %}
+                                        <a href="{% url 'submit_to_moderation' build.id %}" class="btn btn-sm btn-success">
+                                            <i class="bi bi-send"></i> На модерацию
+                                        </a>
+                                    {% endif %}
+                                    
+                                    <a href="{% url 'delete_build' build.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Удалить
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </form>
+        {% else %}
+            <div class="alert alert-info">
+                У вас пока нет сборок. <a href="{% url 'start_project' %}">Создайте первую сборку</a>!
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Вкладка "На модерации" -->
+    <div class="tab-pane fade" id="pending" role="tabpanel">
+        {% for build in all_builds %}
+            {% if build.status == 'PENDING_MODERATION' %}
+                <div class="col-md-6 mb-3">
+                    <div class="card border-warning">
+                        <div class="card-header bg-warning text-white">
+                            <h5 class="mb-0">{{ build.name }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Сегмент:</strong> {{ build.get_price_segment_display }}</p>
+                            <p><strong>Стоимость:</strong> {{ build.total_price }} ₽</p>
+                            <p><strong>Устройств:</strong> {{ build.buildcomponent_set.count }}</p>
+                            <a href="{% url 'build_detail' build.id %}" class="btn btn-outline-primary">
+                                Посмотреть статус
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="alert alert-info">
+                Нет сборок на модерации.
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Вкладка "Опубликованные" -->
+    <div class="tab-pane fade" id="published" role="tabpanel">
+        {% for build in all_builds %}
+            {% if build.status == 'PUBLISHED' %}
+                <div class="col-md-6 mb-3">
+                    <div class="card border-success">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">{{ build.name }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Сегмент:</strong> {{ build.get_price_segment_display }}</p>
+                            <p><strong>Стоимость:</strong> {{ build.total_price }} ₽</p>
+                            <p><strong>Устройств:</strong> {{ build.buildcomponent_set.count }}</p>
+                            <a href="{% url 'build_detail' build.id %}" class="btn btn-outline-primary">
+                                Просмотр
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="alert alert-info">
+                Нет опубликованных сборок.
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Вкладка "Отклонённые" -->
+    <div class="tab-pane fade" id="rejected" role="tabpanel">
+        {% for build in all_builds %}
+            {% if build.status == 'REJECTED' %}
+                <div class="col-md-6 mb-3">
+                    <div class="card border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0">{{ build.name }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Сегмент:</strong> {{ build.get_price_segment_display }}</p>
+                            <p><strong>Стоимость:</strong> {{ build.total_price }} ₽</p>
+                            <p><strong>Устройств:</strong> {{ build.buildcomponent_set.count }}</p>
+                            <a href="{% url 'build_detail' build.id %}" class="btn btn-outline-primary">
+                                Исправить
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="alert alert-info">
+                Нет отклонённых сборок.
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения массового удаления -->
+<div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="bulkDeleteModalLabel">⚠️ Подтверждение удаления</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить <strong id="modal-selected-count"></strong> сборок?</p>
+                <div class="alert alert-warning">
+                    <strong>Внимание!</strong> Это действие нельзя отменить. Сборки будут безвозвратно удалены.
+                </div>
+                <div id="modal-builds-list" class="mt-3">
+                    <h6>Выбранные сборки:</h6>
+                    <ul class="list-group" id="selected-builds-list">
+                        <!-- Сюда будут добавляться названия сборок через JavaScript -->
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirm-bulk-delete">
+                    <i class="bi bi-trash"></i> Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'index' %}" class="btn btn-outline-secondary">← На главную</a>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.build-checkbox');
+    const bulkActionsPanel = document.getElementById('bulk-actions-panel');
+    const selectedCountSpan = document.getElementById('selected-count');
+    const selectAllBtn = document.getElementById('select-all-btn');
+    const deselectAllBtn = document.getElementById('deselect-all-btn');
+    const bulkDeleteForm = document.getElementById('bulk-delete-form');
+    const modalSelectedCount = document.getElementById('modal-selected-count');
+    const selectedBuildsList = document.getElementById('selected-builds-list');
+    const confirmBulkDelete = document.getElementById('confirm-bulk-delete');
+    
+    // Функция обновления панели и счётчика
+    function updateBulkActions() {
+        const checked = document.querySelectorAll('.build-checkbox:checked');
+        const count = checked.length;
+        
+        selectedCountSpan.textContent = count;
+        
+        if (count > 0) {
+            bulkActionsPanel.style.display = 'block';
+        } else {
+            bulkActionsPanel.style.display = 'none';
+        }
+        
+        // Обновляем кнопки "Выбрать все"/"Снять все"
+        const totalCheckboxes = checkboxes.length;
+        if (count === totalCheckboxes && totalCheckboxes > 0) {
+            selectAllBtn.style.display = 'none';
+            deselectAllBtn.style.display = 'inline-block';
+        } else {
+            selectAllBtn.style.display = 'inline-block';
+            deselectAllBtn.style.display = 'none';
+        }
+    }
+    
+    // Обработчик для каждого чекбокса
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActions);
+    });
+    
+    // Выбрать все
+    selectAllBtn.addEventListener('click', function() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = true;
+        });
+        updateBulkActions();
+    });
+    
+    // Снять все
+    deselectAllBtn.addEventListener('click', function() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        updateBulkActions();
+    });
+    
+    // Подготовка модального окна
+    document.getElementById('bulk-delete-btn').addEventListener('click', function() {
+        const checked = document.querySelectorAll('.build-checkbox:checked');
+        const count = checked.length;
+        
+        modalSelectedCount.textContent = count;
+        
+        // Очищаем и заполняем список выбранных сборок
+        selectedBuildsList.innerHTML = '';
+        checked.forEach(checkbox => {
+            const buildItem = checkbox.closest('.build-item');
+            const buildName = buildItem.querySelector('h5').textContent;
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = buildName;
+            selectedBuildsList.appendChild(li);
+        });
+    });
+    
+    // Подтверждение массового удаления
+    confirmBulkDelete.addEventListener('click', function() {
+        bulkDeleteForm.submit();
+    });
+    
+    // Инициализация при загрузке
+    updateBulkActions();
+});
+</script>
+{% endblock %}
+

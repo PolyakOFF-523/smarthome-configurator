@@ -1,0 +1,302 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{{ build.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Левая колонка - состав сборки (на всю ширину) -->
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <h1 class="mb-0">{{ build.name }}</h1>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#renameModal">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                </div>
+                <div class="text-muted mt-1">
+                    <i class="bi bi-calendar3"></i> Создана: {{ build.created_at|date:"d.m.Y H:i" }}
+                </div>
+            </div>
+            <span class="badge bg-{% if build.price_segment == 'ECONOMY' %}success{% elif build.price_segment == 'STANDARD' %}primary{% else %}warning{% endif %} p-2">
+                {{ build.get_price_segment_display }}
+            </span>
+        </div>
+        <div class="text-muted mb-3">
+            <i class="bi bi-calendar3"></i> Создана: {{ build.created_at|date:"d.m.Y H:i" }}
+        </div>
+        
+        <!-- Прогресс сборки -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center bg-transparent">
+                <h5 class="mb-0">
+                    <i class="bi bi-grid-3x3-gap-fill me-2 text-primary"></i>
+                    📋 Состав сборки
+                </h5>
+                <a href="{% url 'add_component_page' build.id %}" 
+                class="btn btn-modern btn-add-device">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    <span>Добавить устройство</span>
+                </a>
+            </div>
+            <div class="card-body">
+                {% if build.buildcomponent_set.exists %}
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Комната</th>
+                                <th>Устройство</th>
+                                <th>Кол-во</th>
+                                <th>Цена</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bc in build.buildcomponent_set.all %}
+                            <tr>
+                                <td>{{ bc.room.get_name_display|default:"—" }}</td>
+                                <td>
+                                    <strong>{{ bc.component.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="bi bi-grid"></i> {{ bc.component.ecosystem.name }} • 
+                                        <i class="bi bi-wifi"></i> {{ bc.component.get_protocol_display }}
+                                        {% if bc.component.power_consumption_watts %}
+                                            • <i class="bi bi-lightning"></i> {{ bc.component.power_consumption_watts|floatformat:1 }} Вт
+                                        {% endif %}
+                                    </small>
+                                </td>
+                                <td>{{ bc.quantity }}</td>
+                                <td>{{ bc.component.price|floatformat:0 }} ₽</td>
+                                <td>
+                                    <a href="{% url 'remove_component' build.id bc.component.id %}" 
+                                       class="text-danger"
+                                       onclick="return confirm('Удалить устройство из сборки?');">
+                                        <i class="bi bi-x-circle"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3">Итого:</th>
+                                <th>{{ build.total_price|floatformat:0 }} ₽</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                {% else %}
+                    <div class="alert alert-info">
+                        Сборка пуста. <a href="{% url 'add_component_page' build.id %}">Добавьте первое устройство</a>.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+                <!-- Информация о сборке и кнопки действий в современном стиле -->
+        <div class="row mt-4">
+            <!-- Статистика сборки в карточках -->
+            <div class="col-md-12 mb-4">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="card text-white bg-primary h-100">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <i class="bi bi-currency-ruble display-6"></i>
+                                </div>
+                                <div>
+                                    <h6 class="card-title mb-1">Общая стоимость</h6>
+                                    <h3 class="mb-0">{{ build.total_price|floatformat:0 }} ₽</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card text-white bg-warning h-100">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <i class="bi bi-lightning-charge display-6"></i>
+                                </div>
+                                <div>
+                                    <h6 class="card-title mb-1">Энергопотребление</h6>
+                                    <h3 class="mb-0">{{ build.total_power|floatformat:1 }} Вт</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card text-white bg-success h-100">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <i class="bi bi-hdd-stack display-6"></i>
+                                </div>
+                                <div>
+                                    <h6 class="card-title mb-1">Устройств в сборке</h6>
+                                    <h3 class="mb-0">{{ build.buildcomponent_set.count }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card text-white bg-secondary h-100">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <i class="bi bi-tag display-6"></i>
+                                </div>
+                                <div>
+                                    <h6 class="card-title mb-1">Статус</h6>
+                                    <h5 class="mb-0">
+                                        {% if build.status == 'DRAFT' %}
+                                            <span class="badge bg-light text-dark">Черновик</span>
+                                        {% elif build.status == 'CONFIGURING' %}
+                                            <span class="badge bg-info">В настройке</span>
+                                        {% elif build.status == 'NEEDS_FIX' %}
+                                            <span class="badge bg-warning">Требует исправления</span>
+                                        {% elif build.status == 'PENDING_MODERATION' %}
+                                            <span class="badge bg-warning">На модерации</span>
+                                        {% elif build.status == 'PUBLISHED' %}
+                                            <span class="badge bg-success">Опубликована</span>
+                                        {% elif build.status == 'REJECTED' %}
+                                            <span class="badge bg-danger">Отклонена</span>
+                                        {% elif build.status == 'VERIFIED' %}
+                                            <span class="badge bg-info">Проверена</span>
+                                        {% elif build.status == 'SAVED' %}
+                                            <span class="badge bg-success">Сохранена</span>
+                                        {% endif %}
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Панель действий -->
+            <div class="col-md-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="bi bi-gear me-2"></i>Доступные действия
+                        </h5>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <a href="{% url 'final_report' build.id %}" class="btn btn-outline-primary w-100 py-3">
+                                    <i class="bi bi-file-text display-6 d-block mb-2"></i>
+                                    <span>Финальный отчет</span>
+                                    <small class="d-block text-muted">Анализ и рекомендации</small>
+                                </a>
+                            </div>
+                            
+                            {% if build.status == 'VERIFIED' or build.status == 'SAVED' or build.status == 'CONFIGURING' %}
+                            <div class="col-md-3">
+                                <a href="{% url 'submit_to_moderation' build.id %}" class="btn btn-outline-warning w-100 py-3">
+                                    <i class="bi bi-send display-6 d-block mb-2"></i>
+                                    <span>На модерацию</span>
+                                    <small class="d-block text-muted">Отправить на проверку</small>
+                                </a>
+                            </div>
+                            {% endif %}
+                            
+                            {% if build.status == 'PENDING_MODERATION' %}
+                            <div class="col-md-3">
+                                <div class="btn btn-outline-secondary w-100 py-3 disabled">
+                                    <i class="bi bi-hourglass-split display-6 d-block mb-2"></i>
+                                    <span>На модерации</span>
+                                    <small class="d-block text-muted">Ожидает проверки</small>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="col-md-3">
+                                <a href="{% url 'delete_build' build.id %}" class="btn btn-outline-danger w-100 py-3">
+                                    <i class="bi bi-trash display-6 d-block mb-2"></i>
+                                    <span>Удалить</span>
+                                    <small class="d-block text-muted">Безвозвратное удаление</small>
+                                </a>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <a href="{% url 'build_selection' %}" class="btn btn-outline-secondary w-100 py-3">
+                                    <i class="bi bi-arrow-left display-6 d-block mb-2"></i>
+                                    <span>К выбору сборок</span>
+                                    <small class="d-block text-muted">Вернуться назад</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Дополнительная информация о совместимости (если есть проблемы) -->
+            {% if build.status == 'NEEDS_FIX' %}
+            <div class="col-md-12 mt-3">
+                <div class="alert alert-warning d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-3 fs-1"></i>
+                    <div>
+                        <h5 class="alert-heading mb-1">Требуется внимание!</h5>
+                        <p class="mb-0">В сборке обнаружены проблемы совместимости. Проверьте устройства и их настройки.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if build.status == 'REJECTED' %}
+            <div class="col-md-12 mt-3">
+                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                    <i class="bi bi-x-octagon-fill me-3 fs-1"></i>
+                    <div>
+                        <h5 class="alert-heading mb-1">Сборка отклонена</h5>
+                        <p class="mb-0">Модератор отклонил эту сборку. Внесите исправления и отправьте повторно.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if build.status == 'PUBLISHED' %}
+            <div class="col-md-12 mt-3">
+                <div class="alert alert-success d-flex align-items-center" role="alert">
+                    <i class="bi bi-check-circle-fill me-3 fs-1"></i>
+                    <div>
+                        <h5 class="alert-heading mb-1">Сборка опубликована!</h5>
+                        <p class="mb-0">Ваша сборка прошла модерацию и доступна другим пользователям.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<!-- Модальное окно переименования -->
+<div class="modal fade" id="renameModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil-square"></i> Переименовать сборку
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'rename_build' build.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Новое название</label>
+                        <input type="text" name="name" class="form-control" value="{{ build.name }}" required>
+                        <small class="text-muted">Придумайте понятное название для вашей сборки</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Поиск{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">🔍 Поиск устройств</h1>
+
+<form method="get" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="q" class="form-control form-control-lg" 
+               placeholder="Введите название устройства, экосистемы или категории..." 
+               value="{{ query }}">
+        <button type="submit" class="btn btn-primary btn-lg">Найти</button>
+    </div>
+</form>
+
+{% if query %}
+    <h3>Результаты поиска: "{{ query }}"</h3>
+    
+    {% if components %}
+        <div class="row g-4 mt-2">
+            {% for component in components %}
+            <div class="col-md-3">
+                <div class="card h-100">
+                    {% if component.image %}
+                        <img src="{{ component.image.url }}" class="card-img-top" alt="{{ component.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-light text-center py-5">
+                            <span class="display-1">📦</span>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <span class="badge bg-secondary mb-2">{{ component.ecosystem.name }}</span>
+                        
+                        <!-- ТЕГИ ЗДЕСЬ -->
+                        {% if component.tags.all %}
+                        <div class="mb-2">
+                            {% for tag in component.tags.all|slice:":2" %}
+                            <span class="badge bg-light text-dark border">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <h6 class="card-title">{{ component.name|truncatechars:40 }}</h6>
+                        <p class="card-text fw-bold text-primary">{{ component.price }} ₽</p>
+                        <a href="{% url 'component_detail' component.slug %}" class="btn btn-sm btn-outline-primary w-100">
+                            Подробнее
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Ничего не найдено. Попробуйте изменить запрос.
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

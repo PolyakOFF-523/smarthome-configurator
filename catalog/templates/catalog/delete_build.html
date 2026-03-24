@@ -1,0 +1,57 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Удаление сборки{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0">⚠️ Подтверждение удаления</h3>
+            </div>
+            <div class="card-body">
+                <h4>{{ build.name }}</h4>
+                <p class="lead">Вы уверены, что хотите удалить эту сборку?</p>
+                
+                <div class="alert alert-warning">
+                    <strong>Внимание!</strong> Это действие нельзя отменить. Сборка будет безвозвратно удалена.
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p><strong>Сегмент:</strong> {{ build.get_price_segment_display }}</p>
+                        <p><strong>Стоимость:</strong> {{ build.total_price }} ₽</p>
+                        <p><strong>Энергопотребление:</strong> {{ build.total_power }} Вт</p>
+                        <p><strong>Устройств в сборке:</strong> {{ build.buildcomponent_set.count }}</p>
+                        <p><strong>Статус:</strong> 
+                            {% if build.status == 'DRAFT' %}
+                                <span class="badge bg-secondary">Черновик</span>
+                            {% elif build.status == 'CONFIGURING' %}
+                                <span class="badge bg-primary">В настройке</span>
+                            {% elif build.status == 'PENDING_MODERATION' %}
+                                <span class="badge bg-warning">На модерации</span>
+                            {% elif build.status == 'PUBLISHED' %}
+                                <span class="badge bg-success">Опубликована</span>
+                            {% elif build.status == 'REJECTED' %}
+                                <span class="badge bg-danger">Отклонена</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Да, удалить сборку
+                        </button>
+                        <a href="{% url 'my_builds' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

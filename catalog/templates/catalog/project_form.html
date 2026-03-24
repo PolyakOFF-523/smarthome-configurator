@@ -1,0 +1,229 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Введите параметры квартиры{% endblock %}
+
+{% block content %}
+{{ saved_rooms|json_script:"saved-rooms-data" }}
+<script>
+    const savedRoomsData = JSON.parse(document.getElementById('saved-rooms-data').textContent);
+</script>
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1 class="text-center mb-4">🏠 Параметры вашей квартиры</h1>
+        
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-door-open"></i> Добавьте комнаты</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" id="projectForm">
+                    {% csrf_token %}
+                    
+                    <div id="rooms-container">
+                        <div class="room-form card mb-3 border-primary">
+                            <div class="card-body">
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-md-1 text-center">
+                                        <span class="room-number badge bg-primary rounded-circle p-3">1</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">
+                                            <i class="bi bi-house-door"></i> Тип комнаты
+                                        </label>
+                                        <select name="room_type[]" class="form-select" required>
+                                            <option value="">— выберите тип комнаты —</option>
+                                            <option value="LIVING">🛋️ Гостиная</option>
+                                            <option value="BEDROOM">🛏️ Спальня</option>
+                                            <option value="KITCHEN">🍳 Кухня</option>
+                                            <option value="BATHROOM">🚿 Ванная</option>
+                                            <option value="CHILDREN">🧸 Детская</option>
+                                            <option value="OFFICE">💼 Кабинет</option>
+                                            <option value="HALL">🚪 Прихожая</option>
+                                            <option value="OTHER">📦 Другое</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">
+                                            <i class="bi bi-rulers"></i> Площадь (м²)
+                                        </label>
+                                        <input type="number" name="room_area[]" class="form-control" 
+                                               placeholder="Например: 20.5" step="0.1" min="1" required>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button type="button" class="btn btn-outline-danger remove-room" title="Удалить комнату">
+                                            <i class="bi bi-trash"></i> Удалить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center my-4">
+                        <button type="button" class="btn btn-success btn-lg" onclick="addRoom()">
+                            <i class="bi bi-plus-circle"></i> Добавить еще комнату
+                        </button>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-magic"></i> Подобрать сборки 🚀
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4 bg-light">
+            <div class="card-body">
+                <h5><i class="bi bi-info-circle"></i> Как это работает?</h5>
+                <ol class="mb-0">
+                    <li>Добавьте все комнаты в вашей квартире</li>
+                    <li>Укажите тип комнаты и её площадь</li>
+                    <li>Нажмите "Подобрать сборки"</li>
+                    <li>Мы предложим готовые наборы умного дома под вашу квартиру</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function addRoom() {
+    const container = document.getElementById('rooms-container');
+    const template = document.querySelector('.room-form');
+    const newRoom = template.cloneNode(true);
+    
+    // Очищаем значения в полях
+    newRoom.querySelectorAll('select, input').forEach(field => {
+        field.value = '';
+    });
+    
+    // Убираем выделение с новой комнаты
+    newRoom.classList.remove('border-primary');
+    
+    container.appendChild(newRoom);
+    updateRoomNumbers();
+    updateRemoveButtons();
+}
+
+function updateRoomNumbers() {
+    const rooms = document.querySelectorAll('.room-form');
+    rooms.forEach((room, index) => {
+        const numberBadge = room.querySelector('.room-number');
+        if (numberBadge) {
+            numberBadge.textContent = index + 1;
+            
+            // Меняем цвет для чётных/нечётных для красоты
+            if ((index + 1) % 2 === 0) {
+                numberBadge.classList.remove('bg-primary');
+                numberBadge.classList.add('bg-secondary');
+            } else {
+                numberBadge.classList.remove('bg-secondary');
+                numberBadge.classList.add('bg-primary');
+            }
+        }
+    });
+}
+
+function updateRemoveButtons() {
+    const roomForms = document.querySelectorAll('.room-form');
+    const removeButtons = document.querySelectorAll('.remove-room');
+    
+    // Если только одна комната, скрываем кнопку удаления или делаем её неактивной
+    if (roomForms.length === 1) {
+        removeButtons.forEach(btn => {
+            btn.disabled = true;
+            btn.classList.remove('btn-outline-danger');
+            btn.classList.add('btn-outline-secondary');
+            btn.innerHTML = '<i class="bi bi-lock"></i> Нельзя удалить';
+        });
+    } else {
+        removeButtons.forEach(btn => {
+            btn.disabled = false;
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-outline-danger');
+            btn.innerHTML = '<i class="bi bi-trash"></i> Удалить';
+        });
+    }
+}
+
+// Удаление комнаты
+document.addEventListener('click', function(e) {
+    const removeBtn = e.target.closest('.remove-room');
+    if (!removeBtn) return;
+    
+    e.preventDefault();
+    
+    const roomForm = removeBtn.closest('.room-form');
+    const roomForms = document.querySelectorAll('.room-form');
+    
+    if (roomForms.length > 1) {
+        // Плавное удаление
+        roomForm.style.transition = 'all 0.3s ease';
+        roomForm.style.opacity = '0';
+        roomForm.style.transform = 'translateX(20px)';
+        
+        setTimeout(() => {
+            roomForm.remove();
+            updateRoomNumbers();
+            updateRemoveButtons();
+        }, 300);
+    } else {
+        alert('❌ Должна быть хотя бы одна комната');
+    }
+});
+
+// Загрузка сохранённых данных
+function loadSavedRooms() {
+    // Получаем данные из скрытого элемента
+    const savedRoomsElement = document.getElementById('saved-rooms-data');
+    if (!savedRoomsElement) return;
+    
+    try {
+        const savedRoomsData = JSON.parse(savedRoomsElement.textContent);
+        
+        if (savedRoomsData && savedRoomsData.length > 0) {
+            // Очищаем все комнаты кроме первой
+            const container = document.getElementById('rooms-container');
+            const roomForms = document.querySelectorAll('.room-form');
+            
+            // Удаляем все комнаты кроме первой
+            for (let i = 1; i < roomForms.length; i++) {
+                roomForms[i].remove();
+            }
+            
+            // Заполняем первую комнату
+            const firstRoom = document.querySelector('.room-form');
+            if (firstRoom) {
+                firstRoom.querySelector('select[name="room_type[]"]').value = savedRoomsData[0].type;
+                firstRoom.querySelector('input[name="room_area[]"]').value = savedRoomsData[0].area;
+            }
+            
+            // Добавляем остальные комнаты
+            for (let i = 1; i < savedRoomsData.length; i++) {
+                addRoom();
+                // Небольшая задержка чтобы DOM обновился
+                setTimeout(() => {
+                    const newRoom = document.querySelectorAll('.room-form')[i];
+                    if (newRoom) {
+                        newRoom.querySelector('select[name="room_type[]"]').value = savedRoomsData[i].type;
+                        newRoom.querySelector('input[name="room_area[]"]').value = savedRoomsData[i].area;
+                    }
+                }, 50);
+            }
+        }
+    } catch (e) {
+        console.error('Ошибка загрузки сохранённых данных:', e);
+    }
+}
+
+// При загрузке страницы обновляем номера, кнопки и загружаем сохранённые данные
+document.addEventListener('DOMContentLoaded', function() {
+    updateRoomNumbers();
+    updateRemoveButtons();
+    loadSavedRooms();
+});
+</script>
+{% endblock %}

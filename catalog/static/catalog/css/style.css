@@ -1,0 +1,458 @@
+/* ================ ПЕРЕМЕННЫЕ ТЕМ ================ */
+
+:root {
+    /* Светлая тема (по умолчанию) */
+    --bg-body: #f8f9fa;  /* Светло-серый фон страницы */
+    --bg-card: #ffffff;   /* Белый фон карточек */
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --card-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Лёгкая тень */
+    --navbar-bg: #f8f9fa;
+    --navbar-text: #212529;
+    --input-bg: #ffffff;
+    --input-border: #ced4da;
+    --hover-bg: #f8f9fa;
+}
+
+[data-theme="dark"] {
+    /* Тёмная тема */
+    --bg-body: #1a1d21;
+    --bg-card: #2c2f33;
+    --text-primary: #e9ecef;
+    --text-secondary: #adb5bd;
+    --border-color: #495057;
+    --card-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    --navbar-bg: #2c2f33;
+    --navbar-text: #e9ecef;
+    --input-bg: #343a40;
+    --input-border: #495057;
+    --hover-bg: #343a40;
+}
+
+/* ================ ОБЩИЕ СТИЛИ ================ */
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Карточки */
+.card {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-header {
+    background-color: var(--bg-card);
+    border-bottom-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.card-body {
+    color: var(--text-primary);
+}
+
+.card-footer {
+    background-color: var(--bg-card);
+    border-top-color: var(--border-color);
+}
+
+/* Навигация */
+.navbar {
+    transition: background-color 0.3s ease;
+}
+
+.navbar-light {
+    background-color: var(--navbar-bg) !important;
+}
+
+.navbar-light .navbar-brand,
+.navbar-light .nav-link {
+    color: var(--navbar-text);
+}
+
+.navbar-dark {
+    background-color: #2c2f33 !important;
+}
+
+/* Таблицы */
+.table {
+    color: var(--text-primary);
+    background-color: transparent;
+}
+
+.table thead th {
+    border-bottom-color: var(--border-color);
+    color: var(--text-primary);
+    background-color: var(--bg-card);
+    font-weight: 600;
+}
+
+.table td {
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+    background-color: transparent;
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background-color: var(--hover-bg);
+}
+
+.table tbody tr:hover td {
+    color: var(--text-primary);
+}
+
+.table tfoot th {
+    border-top-color: var(--border-color);
+    color: var(--text-primary);
+    background-color: var(--bg-card);
+    font-weight: 600;
+}
+
+/* Специально для ячеек с маленьким текстом */
+.table td small.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+.table tbody tr:hover td small.text-muted {
+    color: var(--text-primary) !important;
+}
+
+/* Иконки в таблицах */
+.table td i {
+    color: var(--text-secondary);
+}
+
+.table tbody tr:hover td i {
+    color: var(--text-primary);
+}
+
+/* Формы */
+.form-control, .form-select {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--input-bg);
+    border-color: #86b7fe;
+    color: var(--text-primary);
+}
+
+.form-control::placeholder {
+    color: var(--text-secondary);
+}
+
+.form-label {
+    color: var(--text-primary);
+}
+
+/* Кнопки */
+.btn-outline-primary,
+.btn-outline-warning,
+.btn-outline-danger,
+.btn-outline-secondary {
+    background-color: transparent;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-primary {
+    border-color: #667eea;
+    color: var(--text-primary);
+}
+
+.btn-outline-primary:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+/* Алерты */
+.alert {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.alert-info {
+    background-color: rgba(13, 202, 240, 0.1);
+    border-color: #0dcaf0;
+    color: var(--text-primary);
+}
+
+.alert-success {
+    background-color: rgba(25, 135, 84, 0.1);
+    border-color: #198754;
+    color: var(--text-primary);
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-color: #ffc107;
+    color: var(--text-primary);
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: #dc3545;
+    color: var(--text-primary);
+}
+
+/* Бейджи */
+.badge {
+    color: white;
+}
+
+.badge.bg-light.text-dark {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Модальные окна */
+.modal-content {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.modal-header {
+    border-bottom-color: var(--border-color);
+}
+
+.modal-footer {
+    border-top-color: var(--border-color);
+}
+
+/* Дропдауны */
+.dropdown-menu {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+}
+
+.dropdown-item:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+/* Кнопка переключения темы */
+.theme-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover {
+    transform: rotate(15deg);
+}
+
+/* Списки */
+.list-group-item {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.list-group-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.list-group-item-action {
+    color: var(--text-primary);
+}
+
+/* Хлебные крошки */
+.breadcrumb-item,
+.breadcrumb-item a {
+    color: var(--text-secondary);
+}
+
+.breadcrumb-item.active {
+    color: var(--text-primary);
+}
+
+/* Пагинация */
+.page-link {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.page-link:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+/* Ссылки */
+a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #764ba2;
+}
+
+/* Информационные блоки */
+.bg-light {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+}
+
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .card-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch !important;
+    }
+    
+    .btn-modern {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* ================ СТРАНИЦА ПРОЕКТА (project_form.html) ================ */
+
+.room-number {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white;
+}
+
+.room-form {
+    transition: all 0.3s ease;
+}
+
+.room-form:hover {
+    transform: translateX(5px);
+    box-shadow: var(--card-shadow);
+}
+
+.remove-room {
+    transition: all 0.2s ease;
+}
+
+.remove-room:hover {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+/* ================ ДЕТАЛИ СБОРКИ (build_detail.html) ================ */
+
+/* Кнопка добавления устройства */
+.btn-modern {
+    padding: 0.6rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.btn-add-device {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.btn-add-device:hover {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: white;
+}
+
+/* ================ МОИ СБОРКИ (my_builds.html) ================ */
+
+.build-checkbox {
+    cursor: pointer;
+}
+
+.build-checkbox:checked + * {
+    background-color: rgba(102, 126, 234, 0.1);
+}
+
+#bulk-actions-panel {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================ ДОБАВЛЕНИЕ УСТРОЙСТВА (add_component.html) ================ */
+
+.sticky-top {
+    z-index: 100;
+}
+
+/* Запрет перетаскивания для всех интерактивных элементов */
+a, button, .btn, .nav-link, .dropdown-item, .list-group-item-action {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Запрет перетаскивания для изображений */
+img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    pointer-events: none;
+}
+
+/* Для картинок внутри кнопок */
+a img, button img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Дополнительная защита для всех кликабельных элементов */
+[draggable="false"] {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+}

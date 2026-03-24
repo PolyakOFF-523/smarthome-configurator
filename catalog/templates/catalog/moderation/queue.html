@@ -1,0 +1,116 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Модерация сборок{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">🛡️ Модерация сборок</h1>
+
+<ul class="nav nav-tabs mb-4" id="moderationTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+            На модерации <span class="badge bg-warning">{{ builds_pending|length }}</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="published-tab" data-bs-toggle="tab" data-bs-target="#published" type="button" role="tab">
+            Опубликованные
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">
+            Отклонённые
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="moderationTabContent">
+    <!-- Вкладка "На модерации" -->
+    <div class="tab-pane fade show active" id="pending" role="tabpanel">
+        {% if builds_pending %}
+            <div class="row">
+                {% for build in builds_pending %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ build.name }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Сегмент:</strong> {{ build.get_price_segment_display }}</p>
+                            <p><strong>Стоимость:</strong> {{ build.total_price }} ₽</p>
+                            <p><strong>Устройств:</strong> {{ build.buildcomponent_set.count }}</p>
+                            <p><strong>Создана:</strong> {{ build.id|default:"-" }}</p>  {# Здесь можно добавить дату, если есть поле created_at #}
+                            
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'moderation_detail' build.id %}" class="btn btn-sm btn-outline-primary">
+                                    Просмотр
+                                </a>
+                                <a href="{% url 'moderation_approve' build.id %}" class="btn btn-sm btn-success">
+                                    ✅ Одобрить
+                                </a>
+                                <a href="{% url 'moderation_reject' build.id %}" class="btn btn-sm btn-danger">
+                                    ❌ Отклонить
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Нет сборок на модерации.
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Вкладка "Опубликованные" -->
+    <div class="tab-pane fade" id="published" role="tabpanel">
+        {% if builds_published %}
+            <div class="list-group">
+                {% for build in builds_published %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">{{ build.name }}</h6>
+                            <small class="text-muted">{{ build.total_price }} ₽ • {{ build.buildcomponent_set.count }} устройств</small>
+                        </div>
+                        <a href="{% url 'moderation_detail' build.id %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Нет опубликованных сборок.
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Вкладка "Отклонённые" -->
+    <div class="tab-pane fade" id="rejected" role="tabpanel">
+        {% if builds_rejected %}
+            <div class="list-group">
+                {% for build in builds_rejected %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">{{ build.name }}</h6>
+                            <small class="text-muted">{{ build.total_price }} ₽ • {{ build.buildcomponent_set.count }} устройств</small>
+                        </div>
+                        <a href="{% url 'moderation_detail' build.id %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Нет отклонённых сборок.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'index' %}" class="btn btn-outline-secondary">← На главную</a>
+</div>
+{% endblock %}
