@@ -64,17 +64,20 @@
             </div>
         </div>
         
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-3">
             {% if build.status == 'PENDING_MODERATION' %}
-                <a href="{% url 'moderation_approve' build.id %}" class="btn btn-success">
-                    ✅ Одобрить публикацию
+                <a href="{% url 'moderation_approve' build.id %}" class="btn btn-success btn-lg">
+                    <i class="bi bi-check-lg"></i> Одобрить публикацию
                 </a>
-                <a href="{% url 'moderation_reject' build.id %}" class="btn btn-danger">
-                    ❌ Отклонить
+                <a href="{% url 'moderation_reject' build.id %}" class="btn btn-warning btn-lg">
+                    <i class="bi bi-x-lg"></i> Отклонить
+                </a>
+                <a href="{% url 'moderation_delete' build.id %}" class="btn btn-danger btn-lg">
+                    <i class="bi bi-trash"></i> Удалить
                 </a>
             {% endif %}
-            <a href="{% url 'moderation_queue' %}" class="btn btn-secondary">
-                ← К списку на модерацию
+            <a href="{% url 'moderation_queue' %}" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-arrow-left"></i> К списку на модерацию
             </a>
         </div>
     </div>

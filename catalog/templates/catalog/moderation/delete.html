@@ -1,0 +1,52 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Удаление сборки{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0">⚠️ Удаление сборки</h3>
+            </div>
+            <div class="card-body">
+                <h4>{{ build.name }}</h4>
+                <p class="lead">Вы уверены, что хотите удалить эту сборку?</p>
+                
+                <div class="alert alert-warning">
+                    <strong>Внимание!</strong> Это действие нельзя отменить. Сборка будет безвозвратно удалена.
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p><strong>Автор:</strong> 
+                            {% if build.user %}
+                                {{ build.user.username }}
+                            {% else %}
+                                Аноним
+                            {% endif %}
+                        </p>
+                        <p><strong>Сегмент:</strong> {{ build.get_price_segment_display }}</p>
+                        <p><strong>Стоимость:</strong> {{ build.total_price }} ₽</p>
+                        <p><strong>Просмотры:</strong> {{ build.views_count }}</p>
+                        <p><strong>Лайки:</strong> {{ build.likes.count }}</p>
+                        <p><strong>Создана:</strong> {{ build.created_at|date:"d.m.Y H:i" }}</p>
+                    </div>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Да, удалить сборку
+                        </button>
+                        <a href="{% url 'moderation_queue' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{{ build.name }}{% endblock %}
+
+{% block content %}
+<form id="csrf-form" style="display: none;">
+    {% csrf_token %}
+</form>
+<div class="row">
+    <div class="col-md-12">
+        <!-- Заголовок с кнопками -->
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h1>{{ build.name }}</h1>
+                <div class="text-muted">
+                    <i class="bi bi-calendar3"></i> Создана: {{ build.created_at|date:"d.m.Y H:i" }}
+                    <span class="ms-3">
+                        <i class="bi bi-eye"></i> {{ build.views_count }} просмотров
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex gap-3 align-items-center">
+                <!-- Кнопка лайка -->
+                <button id="like-button" class="btn-like {% if user in build.likes.all %}liked{% endif %}" data-build-id="{{ build.id }}">
+                    <i id="like-icon" class="bi {% if user in build.likes.all %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                    <span id="likes-count">{{ build.likes.count }}</span>
+                    <span>Нравится</span>
+                </button>
+                
+                <!-- Кнопка удаления для модератора -->
+                {% if user.is_staff %}
+                <a href="{% url 'moderation_delete' build.id %}" class="btn-delete-moderator" 
+                   onclick="return confirm('Удалить эту сборку? Это действие нельзя отменить.')">
+                    <i class="bi bi-trash"></i> Удалить сборку
+                </a>
+                {% endif %}
+                
+                <span class="badge bg-{% if build.price_segment == 'ECONOMY' %}success{% elif build.price_segment == 'STANDARD' %}primary{% else %}warning{% endif %} p-2 fs-5">
+                    {{ build.get_price_segment_display }}
+                </span>
+            </div>
+        </div>
+        
+        <!-- Состав сборки -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-grid-3x3-gap-fill"></i> Состав сборки</h4>
+            </div>
+            <div class="card-body">
+                {% if build.buildcomponent_set.exists %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Комната</th>
+                                    <th>Устройство</th>
+                                    <th>Кол-во</th>
+                                    <th>Цена</th>
+                                    <th>Энергопотребление</th>
+                                 </tr>
+                            </thead>
+                            <tbody>
+                                {% for bc in build.buildcomponent_set.all %}
+                                <tr>
+                                    <td>{{ bc.room.get_name_display|default:"—" }}</td>
+                                    <td>
+                                        <strong>{{ bc.component.name }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="bi bi-grid"></i> {{ bc.component.ecosystem.name }} • 
+                                            <i class="bi bi-wifi"></i> {{ bc.component.get_protocol_display }}
+                                        </small>
+                                    </td>
+                                    <td>{{ bc.quantity }}</td>
+                                    <td>{{ bc.component.price|floatformat:0 }} ₽</td>
+                                    <td>
+                                        {% if bc.component.power_consumption_watts %}
+                                            {{ bc.component.power_consumption_watts|floatformat:1 }} Вт
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="3">Итого:</th>
+                                    <th class="text-primary">{{ build.total_price|floatformat:0 }} ₽</th>
+                                    <th class="text-warning">{{ build.total_power|floatformat:1 }} Вт</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        Сборка пуста.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Статистика -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-primary h-100">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <i class="bi bi-currency-ruble display-4"></i>
+                        <h3 class="mt-2 mb-0">{{ build.total_price|floatformat:0 }} ₽</h3>
+                        <p class="mb-0 mt-2">Общая стоимость</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-warning h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-lightning-charge display-4"></i>
+                        <h3 class="mt-2">{{ build.total_power|floatformat:1 }} Вт</h3>
+                        <p class="mb-0">Энергопотребление</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-success h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-hdd-stack display-4"></i>
+                        <h3 class="mt-2">{{ build.buildcomponent_set.count }}</h3>
+                        <p class="mb-0">Устройств в сборке</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Кнопка назад -->
+        <div class="mt-4">
+            <a href="{% url 'public_builds' %}" class="btn btn-outline-secondary">
+                ← Назад к списку сборок
+            </a>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const likeButton = document.getElementById('like-button');
+    if (likeButton) {
+        likeButton.addEventListener('click', function() {
+            const buildId = this.dataset.buildId;
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch(`/like-build/${buildId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Требуется авторизация');
+                    window.location.href = '/login/';
+                    return;
+                }
+                
+                const likesCount = document.getElementById('likes-count');
+                const likeIcon = document.getElementById('like-icon');
+                
+                likesCount.textContent = data.likes_count;
+                
+                if (data.liked) {
+                    likeIcon.classList.remove('bi-heart');
+                    likeIcon.classList.add('bi-heart-fill');
+                    likeButton.classList.add('liked');
+                } else {
+                    likeIcon.classList.remove('bi-heart-fill');
+                    likeIcon.classList.add('bi-heart');
+                    likeButton.classList.remove('liked');
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

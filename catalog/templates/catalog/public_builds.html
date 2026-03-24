@@ -45,7 +45,13 @@
             </div>
             <div class="card-body">
                 <p class="text-muted small">
-                    <i class="bi bi-person"></i> Пользователь #{{ build.project.id|default:"—" }}<br>
+                    <i class="bi bi-person"></i> 
+                    {% if build.user %}
+                        {{ build.user.username }}
+                    {% else %}
+                        Аноним
+                    {% endif %}
+                    <br>
                     <i class="bi bi-eye"></i> {{ build.views_count }} просмотров<br>
                     <i class="bi bi-heart"></i> <span class="likes-count-{{ build.id }}">{{ build.likes.count }}</span> лайков
                 </p>

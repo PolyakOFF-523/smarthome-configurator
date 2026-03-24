@@ -471,3 +471,106 @@ a img, button img {
 .btn-logout:hover {
     background-color: var(--hover-bg);
 }
+
+/* ================ ПРОСТЫЕ СТИЛИ ДЛЯ КНОПОК ================ */
+
+/* Кнопка лайка */
+.btn-like {
+    background: white;
+    border: 2px solid #e83e8c;
+    color: #e83e8c;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.btn-like:hover {
+    background: #e83e8c;
+    color: white;
+}
+
+.btn-like.liked {
+    background: #e83e8c;
+    color: white;
+}
+
+.btn-like.liked i {
+    color: white;
+}
+
+/* Кнопка удаления */
+.btn-delete-moderator {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-delete-moderator:hover {
+    background: #bb2d3b;
+    color: white;
+    text-decoration: none;
+}
+
+/* Принудительные стили для кнопок */
+.btn-like {
+    background: white !important;
+    border: 2px solid #e83e8c !important;
+    color: #e83e8c !important;
+    padding: 8px 20px !important;
+    border-radius: 30px !important;
+    font-weight: 500 !important;
+    font-size: 0.9rem !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    transition: all 0.2s !important;
+}
+
+.btn-like:hover {
+    background: #e83e8c !important;
+    color: white !important;
+}
+
+.btn-like.liked {
+    background: #e83e8c !important;
+    color: white !important;
+}
+
+.btn-delete-moderator {
+    background: #dc3545 !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 20px !important;
+    border-radius: 30px !important;
+    font-weight: 500 !important;
+    font-size: 0.9rem !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    text-decoration: none !important;
+    transition: all 0.2s !important;
+}
+
+.btn-delete-moderator:hover {
+    background: #bb2d3b !important;
+    color: white !important;
+    text-decoration: none !important;
+}

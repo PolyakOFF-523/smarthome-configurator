@@ -1,4 +1,5 @@
 {% extends 'catalog/base.html' %}
+{% load static %}
 
 {% block title %}Отчет по сборке{% endblock %}
 
@@ -35,6 +36,7 @@
             </div>
         </div>
         
+        {% if placement_advice %}
         <div class="card mt-4">
             <div class="card-header">
                 <h3>🏠 Расстановка устройств по комнатам</h3>
@@ -74,18 +76,21 @@
                     </div>
                     {% endif %}
                 </div>
-                {% empty %}
-                <p class="text-muted">Нет данных по расстановке</p>
                 {% endfor %}
             </div>
         </div>
+        {% else %}
+        <div class="alert alert-info mt-4">
+            Нет данных для анализа расстановки устройств.
+        </div>
+        {% endif %}
         
         <div class="mt-4">
             <a href="{% url 'build_detail' build.id %}" class="btn btn-primary">
                 ← Вернуться к сборке
             </a>
-            <button onclick="window.print()" class="btn btn-secondary">
-                🖨️ Сохранить отчет
+            <button onclick="downloadPDF()" class="btn btn-secondary">
+                <i class="bi bi-file-pdf"></i> Сохранить как PDF
             </button>
         </div>
     </div>
@@ -97,4 +102,49 @@
     .card { border: 1px solid #000; }
 }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function downloadPDF() {
+    const element = document.querySelector('.row');
+    
+    // Сохраняем текущую тему
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    
+    // Временно переключаем на светлую тему для PDF
+    document.documentElement.setAttribute('data-theme', 'light');
+    
+    // Небольшая задержка для применения стилей
+    setTimeout(() => {
+        const opt = {
+            margin:        [0.5, 0.5, 0.5, 0.5],
+            filename:     '{{ build.name|slugify }}.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, letterRendering: true, backgroundColor: '#ffffff' },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+        
+        // Скрываем кнопки
+        const buttons = document.querySelectorAll('.btn');
+        const originalDisplay = [];
+        buttons.forEach((btn, index) => {
+            originalDisplay[index] = btn.style.display;
+            btn.style.display = 'none';
+        });
+        
+        // Создаём PDF
+        html2pdf().set(opt).from(element).save()
+            .then(() => {
+                // Возвращаем кнопки
+                buttons.forEach((btn, index) => {
+                    btn.style.display = originalDisplay[index];
+                });
+                // Возвращаем тему обратно
+                document.documentElement.setAttribute('data-theme', currentTheme);
+            });
+    }, 100);
+}
+</script>
 {% endblock %}

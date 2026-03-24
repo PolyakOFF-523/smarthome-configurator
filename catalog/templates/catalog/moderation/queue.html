@@ -41,14 +41,17 @@
                             <p><strong>Создана:</strong> {{ build.id|default:"-" }}</p>  {# Здесь можно добавить дату, если есть поле created_at #}
                             
                             <div class="d-flex gap-2">
-                                <a href="{% url 'moderation_detail' build.id %}" class="btn btn-sm btn-outline-primary">
-                                    Просмотр
+                                <a href="{% url 'moderation_detail' build.id %}" class="btn btn-outline-primary btn-action btn-action-sm">
+                                    <i class="bi bi-eye"></i> Просмотр
                                 </a>
-                                <a href="{% url 'moderation_approve' build.id %}" class="btn btn-sm btn-success">
-                                    ✅ Одобрить
+                                <a href="{% url 'moderation_approve' build.id %}" class="btn btn-success btn-action btn-action-sm">
+                                    <i class="bi bi-check-lg"></i> Одобрить
                                 </a>
-                                <a href="{% url 'moderation_reject' build.id %}" class="btn btn-sm btn-danger">
-                                    ❌ Отклонить
+                                <a href="{% url 'moderation_reject' build.id %}" class="btn btn-warning btn-action btn-action-sm">
+                                    <i class="bi bi-x-lg"></i> Отклонить
+                                </a>
+                                <a href="{% url 'moderation_delete' build.id %}" class="btn btn-outline-danger btn-action btn-action-sm">
+                                    <i class="bi bi-trash"></i> Удалить
                                 </a>
                             </div>
                         </div>

@@ -327,11 +327,27 @@ def rename_build(request, build_id):
 
 def final_report(request, build_id):
     build = get_object_or_404(Build, id=build_id)
-    project_id = request.session.get('project_id')
-    project = get_object_or_404(UserProject, id=project_id) if project_id else None
     
+    # Проверяем, есть ли проект в сессии
+    project_id = request.session.get('project_id')
+    
+    # Если проект в сессии есть, используем его
+    if project_id:
+        project = get_object_or_404(UserProject, id=project_id)
+    else:
+        # Если нет проекта в сессии, но сборка привязана к пользователю
+        if build.user == request.user:
+            # Берём проект из сборки
+            project = build.project
+        else:
+            # Если пользователь не владелец, показываем публичный отчёт без редактирования
+            messages.error(request, 'Доступ запрещён')
+            return redirect('public_build_detail', build_id=build.id)
+    
+    # Если проекта всё ещё нет, перенаправляем
     if not project:
-        return redirect('start_project')
+        messages.error(request, 'Не найден проект для этой сборки')
+        return redirect('my_builds')
     
     from .compatibility import analyze_placement
     placement_advice = analyze_placement(build, project)
@@ -422,6 +438,19 @@ def submit_to_moderation(request, build_id):
     
     return redirect('build_detail', build_id=build.id)
 
+@staff_member_required
+def moderation_delete(request, build_id):
+    """Удаление сборки модератором"""
+    build = get_object_or_404(Build, id=build_id)
+    
+    if request.method == 'POST':
+        build_name = build.name
+        build.delete()
+        messages.success(request, f'✅ Сборка "{build_name}" успешно удалена модератором')
+        return redirect('moderation_queue')
+    
+    context = {'build': build}
+    return render(request, 'catalog/moderation/delete.html', context)
 
 # ================ УПРАВЛЕНИЕ СБОРКАМИ ================
 

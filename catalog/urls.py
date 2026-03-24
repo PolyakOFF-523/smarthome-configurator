@@ -33,6 +33,7 @@ urlpatterns = [
     path('moderation/<int:build_id>/', views.moderation_detail, name='moderation_detail'),
     path('moderation/<int:build_id>/approve/', views.moderation_approve, name='moderation_approve'),
     path('moderation/<int:build_id>/reject/', views.moderation_reject, name='moderation_reject'),
+    path('moderation/<int:build_id>/delete/', views.moderation_delete, name='moderation_delete'),  # Добавить
     path('build/<int:build_id>/submit/', views.submit_to_moderation, name='submit_to_moderation'),
 
     # Управление сборками
