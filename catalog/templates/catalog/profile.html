@@ -1,0 +1,139 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Левая колонка - информация о пользователе -->
+    <div class="col-md-5">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-person-circle"></i> {{ user.username }}</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Email:</strong> {{ user.email|default:"не указан" }}</p>
+                <p><strong>Имя:</strong> {{ user.first_name|default:"не указано" }}</p>
+                <p><strong>Фамилия:</strong> {{ user.last_name|default:"не указана" }}</p>
+                <p><strong>Дата регистрации:</strong> {{ user.date_joined|date:"d.m.Y" }}</p>
+                <hr>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'profile_edit' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil"></i> Редактировать профиль
+                    </a>
+                    <a href="{% url 'change_password' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-key"></i> Сменить пароль
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Статистика -->
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Моя статистика</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <h3>{{ stats.total_builds }}</h3>
+                        <small class="text-muted">Всего сборок</small>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <h3>{{ stats.published_builds }}</h3>
+                        <small class="text-muted">Опубликовано</small>
+                    </div>
+                    <div class="col-6">
+                        <h3>{{ stats.total_views }}</h3>
+                        <small class="text-muted">Всего просмотров</small>
+                    </div>
+                    <div class="col-6">
+                        <h3>{{ stats.total_likes }}</h3>
+                        <small class="text-muted">Всего лайков</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Правая колонка - быстрые действия и последние активности -->
+    <div class="col-md-7">
+        <!-- Быстрые действия -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-lightning-charge"></i> Быстрые действия</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <a href="{% url 'new_project' %}" class="btn btn-outline-primary w-100 py-3">
+                            <i class="bi bi-plus-circle fs-1 d-block mb-2"></i>
+                            <span>Создать сборку</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'my_builds' %}" class="btn btn-outline-success w-100 py-3">
+                            <i class="bi bi-grid-3x3-gap-fill fs-1 d-block mb-2"></i>
+                            <span>Мои сборки</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'public_builds' %}" class="btn btn-outline-secondary w-100 py-3">
+                            <i class="bi bi-people fs-1 d-block mb-2"></i>
+                            <span>Сборки других</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'search' %}" class="btn btn-outline-info w-100 py-3">
+                            <i class="bi bi-search fs-1 d-block mb-2"></i>
+                            <span>Поиск устройств</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Последние сборки (только последние 3) -->
+        {% if builds %}
+        <div class="card">
+            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Последние сборки</h5>
+                <a href="{% url 'my_builds' %}" class="text-white">Все сборки →</a>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for build in builds|slice:":3" %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ build.name }}</h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3"></i> {{ build.created_at|date:"d.m.Y H:i" }}
+                                    <span class="ms-2">
+                                        <i class="bi bi-currency-ruble"></i> {{ build.total_price|floatformat:0 }} ₽
+                                    </span>
+                                    <span class="ms-2">
+                                        <i class="bi bi-eye"></i> {{ build.views_count }}
+                                    </span>
+                                </small>
+                            </div>
+                            <div>
+                                {% if build.status == 'PUBLISHED' %}
+                                    <span class="badge bg-success">Опубликована</span>
+                                {% elif build.status == 'PENDING_MODERATION' %}
+                                    <span class="badge bg-warning">На модерации</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Черновик</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center py-3 mb-0">У вас пока нет сборок</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

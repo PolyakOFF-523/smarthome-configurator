@@ -10,6 +10,10 @@ from .compatibility import CompatibilityChecker
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 
 # ================ КАТАЛОГ ================
 
@@ -631,3 +635,59 @@ def register(request):
         form = UserCreationForm()
     
     return render(request, 'catalog/register.html', {'form': form})
+
+@login_required
+def profile(request):
+    """Личный кабинет пользователя"""
+    builds = request.user.builds.all().order_by('-id')
+    
+    # Статистика
+    stats = {
+        'total_builds': builds.count(),
+        'published_builds': builds.filter(status='PUBLISHED').count(),
+        'pending_builds': builds.filter(status='PENDING_MODERATION').count(),
+        'rejected_builds': builds.filter(status='REJECTED').count(),
+        'total_views': sum(build.views_count for build in builds),
+        'total_likes': sum(build.likes.count() for build in builds),
+    }
+    
+    context = {
+        'user': request.user,
+        'builds': builds,
+        'stats': stats,
+    }
+    return render(request, 'catalog/profile.html', context)
+
+@login_required
+def profile_edit(request):
+    """Редактирование профиля"""
+    if request.method == 'POST':
+        # Обновляем имя и email
+        request.user.username = request.POST.get('username', request.user.username)
+        request.user.email = request.POST.get('email', request.user.email)
+        request.user.first_name = request.POST.get('first_name', '')
+        request.user.last_name = request.POST.get('last_name', '')
+        request.user.save()
+        
+        messages.success(request, '✅ Профиль успешно обновлён!')
+        return redirect('profile')
+    
+    return render(request, 'catalog/profile_edit.html', {'user': request.user})
+
+@login_required
+def change_password(request):
+    """Смена пароля"""
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Важно: чтобы не разлогинило
+            messages.success(request, '✅ Пароль успешно изменён!')
+            return redirect('profile')
+        else:
+            for error in form.errors.values():
+                messages.error(request, error)
+    else:
+        form = PasswordChangeForm(request.user)
+    
+    return render(request, 'catalog/change_password.html', {'form': form})

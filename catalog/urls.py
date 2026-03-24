@@ -49,4 +49,8 @@ urlpatterns = [
     path('like-build/<int:build_id>/', views.like_build, name='like_build'),
     path('build/<int:build_id>/rename/', views.rename_build, name='rename_build'),
 
+    # Профиль
+    path('profile/', views.profile, name='profile'),
+    path('profile/edit/', views.profile_edit, name='profile_edit'),
+    path('profile/change-password/', views.change_password, name='change_password'),
 ]
