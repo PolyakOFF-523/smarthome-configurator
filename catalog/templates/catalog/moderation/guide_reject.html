@@ -1,0 +1,35 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Отклонение гайда{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0">❌ Отклонение гайда</h3>
+            </div>
+            <div class="card-body">
+                <h4>{{ guide.title }}</h4>
+                <p>Вы уверены, что хотите отклонить этот гайд?</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Причина отклонения (необязательно):</label>
+                        <textarea name="reason" class="form-control" rows="3" 
+                                  placeholder="Укажите причину, почему гайд не прошёл модерацию..."></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            Да, отклонить
+                        </button>
+                        <a href="{% url 'guide_moderation_queue' %}" class="btn btn-secondary">
+                            Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

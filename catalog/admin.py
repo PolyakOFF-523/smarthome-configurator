@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    Ecosystem, Category, Component, ComponentImage, Room, UserProject, Build, BuildComponent, Tag  
+    Ecosystem, Category, Component, ComponentImage, Room, UserProject, Build, BuildComponent, Tag, Comment  
 )
 
 @admin.register(Ecosystem)
@@ -83,3 +83,13 @@ class BuildAdmin(admin.ModelAdmin):
 class BuildComponentAdmin(admin.ModelAdmin):
     list_display = ('build', 'component', 'room', 'quantity')
     list_filter = ('build', 'room')
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'build', 'user', 'created_at', 'short_text')
+    list_filter = ('created_at', 'is_active')
+    search_fields = ('text', 'user__username', 'build__name')
+    
+    def short_text(self, obj):
+        return obj.text[:50] + '...' if len(obj.text) > 50 else obj.text
+    short_text.short_description = 'Текст'

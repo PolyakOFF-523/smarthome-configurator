@@ -1,0 +1,88 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{% if guide %}Редактировать гайд{% else %}Предложить гайд{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="bi bi-pencil-square"></i> 
+                    {% if guide %}Редактировать гайд{% else %}Предложить новый гайд{% endif %}
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Заголовок *</label>
+                        <input type="text" name="title" class="form-control" 
+                               value="{{ guide.title|default:'' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Категория *</label>
+                        <select name="category" class="form-select" required>
+                            <option value="">Выберите категорию</option>
+                            {% for cat, name in categories %}
+                            <option value="{{ cat }}" {% if guide.category == cat %}selected{% endif %}>
+                                {{ name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Содержание *</label>
+                        <textarea name="content" class="form-control" rows="15" 
+                                  placeholder="Подробное содержание гайда...
+&#10;Для вставки изображений используйте кнопку ниже или HTML-теги:
+&#10;&lt;img src=&quot;URL_КАРТИНКИ&quot; style=&quot;max-width: 100%; margin: 20px 0; border-radius: 8px;&quot;&gt;" required>{{ guide.content|default:'' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Загрузить изображения</label>
+                        <input type="file" name="images" class="form-control" accept="image/*" multiple>
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i> 
+                            Можно выбрать несколько изображений. После сохранения ссылки на них будут автоматически вставлены в текст.
+                        </small>
+                    </div>
+                    
+                    {% if guide and guide.images.exists %}
+                    <div class="mb-3">
+                        <label class="form-label">Загруженные изображения</label>
+                        <div class="row">
+                            {% for img in guide.images.all %}
+                            <div class="col-md-3 mb-2">
+                                <div class="card">
+                                    <img src="{{ img.image.url }}" class="card-img-top" style="height: 100px; object-fit: cover;">
+                                    <div class="card-body p-2">
+                                        <label class="d-block small">
+                                            <input type="checkbox" name="delete_image_{{ img.id }}"> Удалить
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-send"></i> 
+                            {% if guide %}Сохранить изменения{% else %}Отправить на модерацию{% endif %}
+                        </button>
+                        <a href="{% url 'guide_list' %}" class="btn btn-outline-secondary">
+                            ← Назад к списку гайдов
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

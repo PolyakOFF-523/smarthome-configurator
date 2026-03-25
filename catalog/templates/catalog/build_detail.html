@@ -13,8 +13,11 @@
                     <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#renameModal">
                         <i class="bi bi-pencil"></i>
                     </button>
+                    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#descriptionModal">
+                        <i class="bi bi-file-text"></i>
+                    </button>
                 </div>
-                <!-- Удалите этот блок или оставьте один из них -->
+
                 <div class="text-muted mt-1">
                     <i class="bi bi-calendar3"></i> Создана: {{ build.created_at|date:"d.m.Y H:i" }}
                 </div>
@@ -23,10 +26,6 @@
                 {{ build.get_price_segment_display }}
             </span>
         </div>
-        <!-- Удалите этот блок, так как он дублирует вывод даты -->
-        <!-- <div class="text-muted mb-3">
-            <i class="bi bi-calendar3"></i> Создана: {{ build.created_at|date:"d.m.Y H:i" }}
-        </div> -->
         
         <!-- Прогресс сборки -->
         <div class="card mb-4">
@@ -96,7 +95,6 @@
             </div>
         </div>
         
-        <!-- Остальной код без изменений -->
         <!-- Информация о сборке и кнопки действий в современном стиле -->
         <div class="row mt-4">
             <!-- Статистика сборки в карточках -->
@@ -266,33 +264,58 @@
     </div>
 </div>
 
-<!-- Модальное окно переименования (без изменений) -->
-<div class="modal fade" id="renameModal" tabindex="-1">
+<!-- Модальное окно редактирования описания -->
+<div class="modal fade" id="descriptionModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-info text-white">
                 <h5 class="modal-title">
-                    <i class="bi bi-pencil-square"></i> Переименовать сборку
+                    <i class="bi bi-file-text"></i> Описание сборки
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form method="post" action="{% url 'rename_build' build.id %}">
+            <form method="post" action="{% url 'update_description' build.id %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Новое название</label>
-                        <input type="text" name="name" class="form-control" value="{{ build.name }}" required>
-                        <small class="text-muted">Придумайте понятное название для вашей сборки</small>
+                        <label class="form-label">Расскажите о своей сборке</label>
+                        <textarea name="description" class="form-control" rows="6" 
+                                  placeholder="Например:&#10;• Цели: автоматизация освещения в гостиной&#10;• Особенности: все устройства работают через Zigbee&#10;• Бюджет: до 15000 ₽">{{ build.description }}</textarea>
+                        <small class="text-muted">
+                            <i class="bi bi-lightbulb"></i> Опишите цели, особенности, бюджет или любые другие детали
+                        </small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-lg"></i> Сохранить
+                    <button type="submit" class="btn btn-info">
+                        <i class="bi bi-save"></i> Сохранить описание
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- Блок с описанием -->
+{% if build.description %}
+<div class="card mb-4 border-info">
+    <div class="card-header bg-info text-white">
+        <i class="bi bi-chat-quote"></i> Описание сборки
+        <button type="button" class="btn btn-sm btn-light float-end" data-bs-toggle="modal" data-bs-target="#descriptionModal">
+            <i class="bi bi-pencil"></i> Редактировать
+        </button>
+    </div>
+    <div class="card-body">
+        <p class="mb-0">{{ build.description|linebreaks }}</p>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+    <span><i class="bi bi-info-circle"></i> У этой сборки пока нет описания</span>
+    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#descriptionModal">
+        <i class="bi bi-plus"></i> Добавить описание
+    </button>
+</div>
+{% endif %}
 {% endblock %}

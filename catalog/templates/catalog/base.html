@@ -22,7 +22,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'new_project' %}" draggable="false">➕ Новая сборка</a>
                     </li>
-                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'guide_list' %}" draggable="false">
+                            <i class="bi bi-book"></i> Гайды
+                        </a>
+                    </li>
                     {% if user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'my_builds' %}" draggable="false">📦 Мои сборки</a>

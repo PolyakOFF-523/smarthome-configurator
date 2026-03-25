@@ -55,6 +55,17 @@
                     <i class="bi bi-eye"></i> {{ build.views_count }} просмотров<br>
                     <i class="bi bi-heart"></i> <span class="likes-count-{{ build.id }}">{{ build.likes.count }}</span> лайков
                 </p>
+                
+                <!-- КРАТКОЕ ОПИСАНИЕ - ВСТАВЛЯЕМ СЮДА -->
+                {% if build.description %}
+                <div class="mb-2">
+                    <small class="text-muted">
+                        <i class="bi bi-chat-quote"></i> 
+                        {{ build.description|truncatechars:80 }}
+                    </small>
+                </div>
+                {% endif %}
+                
                 <p><strong>Сегмент:</strong> {{ build.get_price_segment_display }}</p>
                 <p><strong>Стоимость:</strong> {{ build.total_price|floatformat:0 }} ₽</p>
                 <p><strong>Устройств:</strong> {{ build.buildcomponent_set.count }}</p>

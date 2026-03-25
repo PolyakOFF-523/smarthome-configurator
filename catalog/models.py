@@ -241,6 +241,12 @@ class Build(models.Model):
         verbose_name='Статус сборки'
     )
 
+    description = models.TextField(
+        "Описание сборки",
+        blank=True,
+        help_text="Расскажите о целях, особенностях и идее вашей сборки"
+    )
+
     is_selected = models.BooleanField(
         default=False,
         verbose_name='Выбрана пользователем'
@@ -285,3 +291,100 @@ class BuildComponent(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.IntegerField(default=1)
 
+class Comment(models.Model):
+    """Комментарий к сборке"""
+    build = models.ForeignKey(
+        Build, 
+        on_delete=models.CASCADE, 
+        related_name='comments',
+        verbose_name="Сборка"
+    )
+    user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='comments',
+        verbose_name="Пользователь",
+        null=True,
+        blank=True
+    )
+    text = models.TextField("Текст комментария")
+    created_at = models.DateTimeField("Дата создания", auto_now_add=True)
+    updated_at = models.DateTimeField("Дата обновления", auto_now=True)
+    is_active = models.BooleanField("Активен", default=True)
+    
+    class Meta:
+        verbose_name = "Комментарий"
+        verbose_name_plural = "Комментарии"
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        author = self.user.username if self.user else "Аноним"
+        return f"{author}: {self.text[:50]}"
+    
+class Guide(models.Model):
+    """Гайд или руководство по умному дому"""
+    CATEGORY_CHOICES = [
+        ('BEGINNER', 'Для начинающих'),
+        ('SETUP', 'Настройка'),
+        ('SCENARIOS', 'Сценарии'),
+        ('TROUBLESHOOTING', 'Решение проблем'),
+        ('ADVANCED', 'Продвинутые советы'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('DRAFT', 'Черновик'),
+        ('PENDING', 'На модерации'),
+        ('PUBLISHED', 'Опубликован'),
+        ('REJECTED', 'Отклонён'),
+    ]
+    
+    title = models.CharField("Заголовок", max_length=200)
+    slug = models.SlugField("URL", unique=True, blank=True)
+    category = models.CharField("Категория", max_length=20, choices=CATEGORY_CHOICES, default='BEGINNER')
+    content = models.TextField("Содержание")
+    excerpt = models.CharField("Краткое описание", max_length=300, blank=True)
+    image = models.ImageField("Изображение", upload_to='guides/', blank=True, null=True)
+    author = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='guides',
+        verbose_name="Автор"
+    )
+    status = models.CharField("Статус", max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    views_count = models.IntegerField("Просмотры", default=0)
+    created_at = models.DateTimeField("Дата создания", auto_now_add=True)
+    updated_at = models.DateTimeField("Дата обновления", auto_now=True)
+    
+    class Meta:
+        verbose_name = "Гайд"
+        verbose_name_plural = "Гайды"
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return self.title
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            from django.utils.text import slugify
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+    
+    def get_absolute_url(self):
+        return reverse('guide_detail', kwargs={'slug': self.slug})
+
+class GuideImage(models.Model):
+    """Изображения для гайда"""
+    guide = models.ForeignKey(Guide, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField("Изображение", upload_to='guides/')
+    caption = models.CharField("Подпись", max_length=200, blank=True)
+    order = models.IntegerField("Порядок", default=0)
+    
+    class Meta:
+        verbose_name = "Изображение гайда"
+        verbose_name_plural = "Изображения гайдов"
+        ordering = ['order']
+    
+    def __str__(self):
+        return f"{self.guide.title} - {self.order}"

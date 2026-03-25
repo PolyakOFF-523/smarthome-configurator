@@ -574,3 +574,45 @@ a img, button img {
     color: white !important;
     text-decoration: none !important;
 }
+
+/* ================ КОММЕНТАРИИ ================ */
+
+.comments-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.comment-item {
+    transition: all 0.2s ease;
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+}
+
+.comment-item:hover {
+    background-color: var(--hover-bg);
+    transform: translateX(5px);
+}
+
+.comment-author {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.comment-text {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.comment-text p {
+    margin-bottom: 0;
+}
+
+.comment-actions {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.comment-item:hover .comment-actions {
+    opacity: 1;
+}

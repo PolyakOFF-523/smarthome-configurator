@@ -3,8 +3,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Q
 from django.http import JsonResponse
-from .models import Ecosystem, Category, Component
-from .models import UserProject, Room, Build, BuildComponent
+from .models import Ecosystem, Category, Component, UserProject, Room, Build, BuildComponent, Comment, Guide, GuideImage
 from .build_generator import BuildGenerator
 from .compatibility import CompatibilityChecker
 from django.contrib.auth import login, authenticate
@@ -14,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
+from django.utils.text import slugify
 
 # ================ КАТАЛОГ ================
 
@@ -370,10 +370,18 @@ def moderation_queue(request):
     builds_published = Build.objects.filter(status='PUBLISHED').order_by('-id')[:10]
     builds_rejected = Build.objects.filter(status='REJECTED').order_by('-id')[:10]
     
+    # Добавляем гайды
+    guides_pending = Guide.objects.filter(status='PENDING').order_by('-created_at')
+    guides_published = Guide.objects.filter(status='PUBLISHED').order_by('-created_at')[:10]
+    guides_rejected = Guide.objects.filter(status='REJECTED').order_by('-created_at')[:10]
+    
     context = {
         'builds_pending': builds_pending,
         'builds_published': builds_published,
         'builds_rejected': builds_rejected,
+        'guides_pending': guides_pending,
+        'guides_published': guides_published,
+        'guides_rejected': guides_rejected,
     }
     return render(request, 'catalog/moderation/queue.html', context)
 
@@ -645,6 +653,24 @@ def like_build(request, build_id):
         'likes_count': build.likes.count()
     })
 
+def update_description(request, build_id):
+    """Обновление описания сборки"""
+    build = get_object_or_404(Build, id=build_id)
+    
+    # Проверяем права доступа
+    if request.user.is_authenticated and build.user == request.user:
+        if request.method == 'POST':
+            description = request.POST.get('description', '').strip()
+            build.description = description
+            build.save()
+            messages.success(request, '✅ Описание сборки обновлено!')
+        else:
+            messages.error(request, '❌ Неверный метод запроса')
+    else:
+        messages.error(request, '❌ У вас нет прав для редактирования этой сборки')
+    
+    return redirect('build_detail', build_id=build.id)
+
 # ================ ПОЛЬЗОВАТЕЛИ ================
 
 def register(request):
@@ -720,3 +746,236 @@ def change_password(request):
         form = PasswordChangeForm(request.user)
     
     return render(request, 'catalog/change_password.html', {'form': form})
+
+def add_comment(request, build_id):
+    """Добавление комментария к сборке"""
+    build = get_object_or_404(Build, id=build_id, status='PUBLISHED')
+    
+    if request.method == 'POST':
+        text = request.POST.get('text', '').strip()
+        
+        if not text:
+            messages.error(request, '❌ Комментарий не может быть пустым')
+            return redirect('public_build_detail', build_id=build.id)
+        
+        if len(text) > 2000:
+            messages.error(request, '❌ Комментарий не должен превышать 2000 символов')
+            return redirect('public_build_detail', build_id=build.id)
+        
+        # Создаём комментарий
+        comment = Comment.objects.create(
+            build=build,
+            user=request.user if request.user.is_authenticated else None,
+            text=text
+        )
+        
+        messages.success(request, '✅ Комментарий добавлен!')
+        return redirect('public_build_detail', build_id=build.id)
+    
+    return redirect('public_build_detail', build_id=build.id)
+
+def delete_comment(request, comment_id):
+    """Удаление комментария (только автор или модератор)"""
+    comment = get_object_or_404(Comment, id=comment_id)
+    build_id = comment.build.id
+    
+    # Проверка прав: автор комментария, модератор или автор сборки
+    if request.user.is_authenticated:
+        is_author = comment.user == request.user
+        is_moderator = request.user.is_staff
+        is_build_author = comment.build.user == request.user
+        
+        if is_author or is_moderator or is_build_author:
+            comment.delete()
+            messages.success(request, '🗑️ Комментарий удалён')
+        else:
+            messages.error(request, '❌ У вас нет прав для удаления этого комментария')
+    else:
+        messages.error(request, '❌ Требуется авторизация')
+    
+    return redirect('public_build_detail', build_id=build_id)
+
+# ================ РУКОВОДСТВО ================
+
+def guide_list(request):
+    """Список всех гайдов"""
+    guides = Guide.objects.filter(status='PUBLISHED').order_by('-created_at')
+    
+    # Фильтры по категории
+    category = request.GET.get('category')
+    if category:
+        guides = guides.filter(category=category)
+    
+    context = {
+        'guides': guides,
+        'selected_category': category,
+        'guide': Guide,
+    }
+    return render(request, 'catalog/guide_list.html', context)
+
+def guide_detail(request, slug):
+    """Детальная страница гайда"""
+    # Показываем только опубликованные гайды для обычных пользователей
+    if request.user.is_staff:
+        # Модераторы могут видеть гайды в любом статусе
+        guide = get_object_or_404(Guide, slug=slug)
+    else:
+        # Обычные пользователи видят только опубликованные
+        guide = get_object_or_404(Guide, slug=slug, status='PUBLISHED')
+    
+    # Увеличиваем счётчик просмотров
+    guide.views_count += 1
+    guide.save(update_fields=['views_count'])
+    
+    # Похожие гайды
+    similar_guides = Guide.objects.filter(
+        category=guide.category, 
+        status='PUBLISHED'
+    ).exclude(id=guide.id)[:3]
+    
+    context = {
+        'guide': guide,
+        'similar_guides': similar_guides,
+    }
+    return render(request, 'catalog/guide_detail.html', context)
+
+@login_required
+def guide_create(request):
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        category = request.POST.get('category')
+        content = request.POST.get('content', '').strip()
+        
+        if not title or not content:
+            messages.error(request, '❌ Заполните заголовок и содержание')
+            return redirect('guide_create')
+        
+        guide = Guide.objects.create(
+            title=title,
+            category=category,
+            content=content,
+            author=request.user,
+            status='PENDING'
+        )
+        
+        # Обработка загруженных изображений
+        images = request.FILES.getlist('images')
+        if images:
+            # Добавляем информацию о загруженных изображениях в текст
+            image_links = []
+            for img in images:
+                # Сохраняем изображение
+                guide_image = GuideImage.objects.create(
+                    guide=guide,
+                    image=img
+                )
+                image_links.append(
+                    f'<img src="{guide_image.image.url}" alt="Изображение" style="max-width: 100%; margin: 20px 0; border-radius: 8px;">'
+                )
+            
+            # Добавляем ссылки на изображения в конец текста
+            if image_links:
+                guide.content += '\n\n' + '\n'.join(image_links)
+                guide.save()
+        
+        messages.success(request, '✅ Гайд отправлен на модерацию!')
+        return redirect('guide_list')
+    
+    context = {
+        'categories': Guide.CATEGORY_CHOICES,
+    }
+    return render(request, 'catalog/guide_form.html', context)
+
+@login_required
+@login_required
+def guide_edit(request, guide_id):
+    guide = get_object_or_404(Guide, id=guide_id, author=request.user)
+    
+    if request.method == 'POST':
+        guide.title = request.POST.get('title', '').strip()
+        guide.category = request.POST.get('category')
+        guide.content = request.POST.get('content', '').strip()
+        
+        # Удаление отмеченных изображений
+        for img in guide.images.all():
+            if request.POST.get(f'delete_image_{img.id}'):
+                img.delete()
+        
+        # Обработка новых изображений
+        images = request.FILES.getlist('images')
+        if images:
+            image_links = []
+            for img in images:
+                guide_image = GuideImage.objects.create(
+                    guide=guide,
+                    image=img
+                )
+                image_links.append(
+                    f'<img src="{guide_image.image.url}" alt="Изображение" style="max-width: 100%; margin: 20px 0; border-radius: 8px;">'
+                )
+            
+            if image_links:
+                guide.content += '\n\n' + '\n'.join(image_links)
+        
+        if guide.status == 'REJECTED':
+            guide.status = 'PENDING'
+        
+        guide.save()
+        
+        messages.success(request, '✅ Гайд обновлён и отправлен на повторную модерацию!')
+        return redirect('guide_detail', slug=guide.slug)
+    
+    context = {
+        'guide': guide,
+        'categories': Guide.CATEGORY_CHOICES,
+    }
+    return render(request, 'catalog/guide_form.html', context)
+
+@login_required
+def guide_delete(request, guide_id):
+    """Удаление своего гайда"""
+    guide = get_object_or_404(Guide, id=guide_id, author=request.user)
+    
+    if request.method == 'POST':
+        guide.delete()
+        messages.success(request, '🗑️ Гайд удалён')
+        return redirect('guide_list')
+    
+    return render(request, 'catalog/guide_confirm_delete.html', {'guide': guide})
+
+@staff_member_required
+def guide_moderation_queue(request):
+    """Очередь модерации гайдов"""
+    pending_guides = Guide.objects.filter(status='PENDING').order_by('-created_at')
+    published_guides = Guide.objects.filter(status='PUBLISHED').order_by('-created_at')[:10]
+    rejected_guides = Guide.objects.filter(status='REJECTED').order_by('-created_at')[:10]
+    
+    context = {
+        'pending_guides': pending_guides,
+        'published_guides': published_guides,
+        'rejected_guides': rejected_guides,
+    }
+    return render(request, 'catalog/moderation/guide_queue.html', context)
+
+@staff_member_required
+def guide_moderation_approve(request, guide_id):
+    """Одобрение гайда"""
+    guide = get_object_or_404(Guide, id=guide_id)
+    guide.status = 'PUBLISHED'
+    guide.save()
+    messages.success(request, f'✅ Гайд "{guide.title}" опубликован')
+    return redirect('guide_moderation_queue')
+
+@staff_member_required
+def guide_moderation_reject(request, guide_id):
+    """Отклонение гайда"""
+    guide = get_object_or_404(Guide, id=guide_id)
+    if request.method == 'POST':
+        reason = request.POST.get('reason', '')
+        guide.status = 'REJECTED'
+        guide.save()
+        messages.success(request, f'❌ Гайд "{guide.title}" отклонён')
+        return redirect('guide_moderation_queue')
+    
+    return render(request, 'catalog/moderation/guide_reject.html', {'guide': guide})
+

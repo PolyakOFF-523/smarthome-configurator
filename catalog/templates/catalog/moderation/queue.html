@@ -3,113 +3,276 @@
 {% block title %}Модерация сборок{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">🛡️ Модерация сборок</h1>
+<h1 class="mb-4">🛡️ Модерация</h1>
 
 <ul class="nav nav-tabs mb-4" id="moderationTabs" role="tablist">
     <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
-            На модерации <span class="badge bg-warning">{{ builds_pending|length }}</span>
+        <button class="nav-link active" id="builds-tab" data-bs-toggle="tab" data-bs-target="#builds" type="button" role="tab">
+            Сборки <span class="badge bg-warning">{{ builds_pending|length }}</span>
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="published-tab" data-bs-toggle="tab" data-bs-target="#published" type="button" role="tab">
-            Опубликованные
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">
-            Отклонённые
+        <button class="nav-link" id="guides-tab" data-bs-toggle="tab" data-bs-target="#guides" type="button" role="tab">
+            Гайды <span class="badge bg-info">{{ guides_pending|length }}</span>
         </button>
     </li>
 </ul>
 
 <div class="tab-content" id="moderationTabContent">
-    <!-- Вкладка "На модерации" -->
-    <div class="tab-pane fade show active" id="pending" role="tabpanel">
-        {% if builds_pending %}
-            <div class="row">
-                {% for build in builds_pending %}
-                <div class="col-md-6 mb-3">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">{{ build.name }}</h5>
+    <!-- Вкладка "Сборки" -->
+    <div class="tab-pane fade show active" id="builds" role="tabpanel">
+        <ul class="nav nav-tabs mb-4" id="buildTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="pending-builds-tab" data-bs-toggle="tab" data-bs-target="#pending-builds" type="button">
+                    На модерации <span class="badge bg-warning">{{ builds_pending|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="published-builds-tab" data-bs-toggle="tab" data-bs-target="#published-builds" type="button">
+                    Опубликованные
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="rejected-builds-tab" data-bs-toggle="tab" data-bs-target="#rejected-builds" type="button">
+                    Отклонённые
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Сборки на модерации -->
+            <div class="tab-pane fade show active" id="pending-builds">
+                {% if builds_pending %}
+                    <div class="row">
+                        {% for build in builds_pending %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">{{ build.name }}</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% if build.description %}
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="bi bi-chat-quote"></i> 
+                                            {{ build.description|truncatechars:100 }}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                    <p><strong>Автор:</strong> 
+                                        {% if build.user %}
+                                            {{ build.user.username }}
+                                        {% else %}
+                                            Аноним
+                                        {% endif %}
+                                    </p>
+                                    <p><strong>Сегмент:</strong> {{ build.get_price_segment_display }}</p>
+                                    <p><strong>Стоимость:</strong> {{ build.total_price }} ₽</p>
+                                    <p><strong>Устройств:</strong> {{ build.buildcomponent_set.count }}</p>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'moderation_detail' build.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> Просмотр
+                                        </a>
+                                        <a href="{% url 'moderation_approve' build.id %}" class="btn btn-sm btn-success">
+                                            ✅ Одобрить
+                                        </a>
+                                        <a href="{% url 'moderation_reject' build.id %}" class="btn btn-sm btn-danger">
+                                            ❌ Отклонить
+                                        </a>
+                                        <a href="{% url 'moderation_delete' build.id %}" class="btn btn-sm btn-outline-danger">
+                                            🗑️ Удалить
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        Нет сборок на модерации.
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Опубликованные сборки -->
+            <div class="tab-pane fade" id="published-builds">
+                {% if builds_published %}
+                    <div class="list-group">
+                        {% for build in builds_published %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ build.name }}</h6>
+                                    {% if build.description %}
+                                    <small class="text-muted d-block mb-1">
+                                        <i class="bi bi-chat-quote"></i> {{ build.description|truncatechars:80 }}
+                                    </small>
+                                    {% endif %}
+                                    <small class="text-muted">
+                                        Автор: {% if build.user %}{{ build.user.username }}{% else %}Аноним{% endif %} • 
+                                        {{ build.total_price }} ₽ • {{ build.buildcomponent_set.count }} устройств
+                                    </small>
+                                </div>
+                                <a href="{% url 'moderation_detail' build.id %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        Нет опубликованных сборок.
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Отклонённые сборки -->
+            <div class="tab-pane fade" id="rejected-builds">
+                {% if builds_rejected %}
+                    <div class="list-group">
+                        {% for build in builds_rejected %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ build.name }}</h6>
+                                    {% if build.description %}
+                                    <small class="text-muted d-block mb-1">
+                                        <i class="bi bi-chat-quote"></i> {{ build.description|truncatechars:80 }}
+                                    </small>
+                                    {% endif %}
+                                    <small class="text-muted">
+                                        Автор: {% if build.user %}{{ build.user.username }}{% else %}Аноним{% endif %} • 
+                                        {{ build.total_price }} ₽ • {{ build.buildcomponent_set.count }} устройств
+                                    </small>
+                                </div>
+                                <a href="{% url 'moderation_detail' build.id %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        Нет отклонённых сборок.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка "Гайды" -->
+    <div class="tab-pane fade" id="guides" role="tabpanel">
+        <ul class="nav nav-tabs mb-4" id="guideTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="pending-guides-tab" data-bs-toggle="tab" data-bs-target="#pending-guides" type="button">
+                    На модерации <span class="badge bg-warning">{{ guides_pending|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="published-guides-tab" data-bs-toggle="tab" data-bs-target="#published-guides" type="button">
+                    Опубликованные
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="rejected-guides-tab" data-bs-toggle="tab" data-bs-target="#rejected-guides" type="button">
+                    Отклонённые
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Гайды на модерации -->
+            <div class="tab-pane fade show active" id="pending-guides">
+                {% if guides_pending %}
+                    {% for guide in guides_pending %}
+                    <div class="card mb-3">
                         <div class="card-body">
-                            <p><strong>Сегмент:</strong> {{ build.get_price_segment_display }}</p>
-                            <p><strong>Стоимость:</strong> {{ build.total_price }} ₽</p>
-                            <p><strong>Устройств:</strong> {{ build.buildcomponent_set.count }}</p>
-                            <p><strong>Создана:</strong> {{ build.id|default:"-" }}</p>  {# Здесь можно добавить дату, если есть поле created_at #}
-                            
-                            <div class="d-flex gap-2">
-                                <a href="{% url 'moderation_detail' build.id %}" class="btn btn-outline-primary btn-action btn-action-sm">
-                                    <i class="bi bi-eye"></i> Просмотр
-                                </a>
-                                <a href="{% url 'moderation_approve' build.id %}" class="btn btn-success btn-action btn-action-sm">
-                                    <i class="bi bi-check-lg"></i> Одобрить
-                                </a>
-                                <a href="{% url 'moderation_reject' build.id %}" class="btn btn-warning btn-action btn-action-sm">
-                                    <i class="bi bi-x-lg"></i> Отклонить
-                                </a>
-                                <a href="{% url 'moderation_delete' build.id %}" class="btn btn-outline-danger btn-action btn-action-sm">
-                                    <i class="bi bi-trash"></i> Удалить
-                                </a>
+                            <div class="d-flex justify-content-between">
+                                <div class="flex-grow-1">
+                                    <h5>{{ guide.title }}</h5>
+                                    <span class="badge bg-secondary mb-2">{{ guide.get_category_display }}</span>
+                                    <p class="text-muted small mt-2">
+                                        <i class="bi bi-person"></i> {{ guide.author.username }} •
+                                        <i class="bi bi-calendar3"></i> {{ guide.created_at|date:"d.m.Y H:i" }}
+                                    </p>
+                                    <p>{{ guide.excerpt|truncatechars:150 }}</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'guide_detail' guide.slug %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Просмотр
+                                    </a>
+                                    <a href="{% url 'guide_moderation_approve' guide.id %}" class="btn btn-sm btn-success">
+                                        ✅ Одобрить
+                                    </a>
+                                    <a href="{% url 'guide_moderation_reject' guide.id %}" class="btn btn-sm btn-danger">
+                                        ❌ Отклонить
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="alert alert-info">
-                Нет сборок на модерации.
-            </div>
-        {% endif %}
-    </div>
-    
-    <!-- Вкладка "Опубликованные" -->
-    <div class="tab-pane fade" id="published" role="tabpanel">
-        {% if builds_published %}
-            <div class="list-group">
-                {% for build in builds_published %}
-                <div class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">{{ build.name }}</h6>
-                            <small class="text-muted">{{ build.total_price }} ₽ • {{ build.buildcomponent_set.count }} устройств</small>
-                        </div>
-                        <a href="{% url 'moderation_detail' build.id %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">
+                        Нет гайдов на модерации.
                     </div>
-                </div>
-                {% endfor %}
+                {% endif %}
             </div>
-        {% else %}
-            <div class="alert alert-info">
-                Нет опубликованных сборок.
-            </div>
-        {% endif %}
-    </div>
-    
-    <!-- Вкладка "Отклонённые" -->
-    <div class="tab-pane fade" id="rejected" role="tabpanel">
-        {% if builds_rejected %}
-            <div class="list-group">
-                {% for build in builds_rejected %}
-                <div class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">{{ build.name }}</h6>
-                            <small class="text-muted">{{ build.total_price }} ₽ • {{ build.buildcomponent_set.count }} устройств</small>
+
+            <!-- Опубликованные гайды -->
+            <div class="tab-pane fade" id="published-guides">
+                {% if guides_published %}
+                    <div class="list-group">
+                        {% for guide in guides_published %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ guide.title }}</h6>
+                                    <span class="badge bg-secondary mb-1">{{ guide.get_category_display }}</span>
+                                    <br>
+                                    <small class="text-muted">
+                                        Автор: {{ guide.author.username }} • {{ guide.created_at|date:"d.m.Y" }} • {{ guide.views_count }} просмотров
+                                    </small>
+                                </div>
+                                <a href="{% url 'guide_detail' guide.slug %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
+                            </div>
                         </div>
-                        <a href="{% url 'moderation_detail' build.id %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
+                        {% endfor %}
                     </div>
-                </div>
-                {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">
+                        Нет опубликованных гайдов.
+                    </div>
+                {% endif %}
             </div>
-        {% else %}
-            <div class="alert alert-info">
-                Нет отклонённых сборок.
+
+            <!-- Отклонённые гайды -->
+            <div class="tab-pane fade" id="rejected-guides">
+                {% if guides_rejected %}
+                    <div class="list-group">
+                        {% for guide in guides_rejected %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ guide.title }}</h6>
+                                    <span class="badge bg-secondary mb-1">{{ guide.get_category_display }}</span>
+                                    <br>
+                                    <small class="text-muted">
+                                        Автор: {{ guide.author.username }} • {{ guide.created_at|date:"d.m.Y" }}
+                                    </small>
+                                </div>
+                                <a href="{% url 'guide_detail' guide.slug %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        Нет отклонённых гайдов.
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
+        </div>
     </div>
 </div>
 

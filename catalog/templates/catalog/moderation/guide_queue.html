@@ -1,0 +1,108 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Модерация гайдов{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">📚 Модерация гайдов</h1>
+
+<ul class="nav nav-tabs mb-4" id="guideTabs" role="tablist">
+    <li class="nav-item">
+        <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button">
+            На модерации <span class="badge bg-warning">{{ pending_guides|length }}</span>
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="published-tab" data-bs-toggle="tab" data-bs-target="#published" type="button">
+            Опубликованные
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button">
+            Отклонённые
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <!-- На модерации -->
+    <div class="tab-pane fade show active" id="pending">
+        {% for guide in pending_guides %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5>{{ guide.title }}</h5>
+                        <p class="text-muted small">
+                            <i class="bi bi-person"></i> {{ guide.author.username }} •
+                            <i class="bi bi-calendar3"></i> {{ guide.created_at|date:"d.m.Y H:i" }}
+                        </p>
+                        <p>{{ guide.excerpt|truncatechars:150 }}</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'guide_detail' guide.slug %}" class="btn btn-sm btn-outline-primary">
+                            Просмотр
+                        </a>
+                        <a href="{% url 'guide_moderation_approve' guide.id %}" class="btn btn-sm btn-success">
+                            ✅ Одобрить
+                        </a>
+                        <a href="{% url 'guide_moderation_reject' guide.id %}" class="btn btn-sm btn-danger">
+                            ❌ Отклонить
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">Нет гайдов на модерации</div>
+        {% endfor %}
+    </div>
+    
+    <!-- Опубликованные -->
+    <div class="tab-pane fade" id="published">
+        {% for guide in published_guides %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">{{ guide.title }}</h6>
+                        <small class="text-muted">{{ guide.author.username }} • {{ guide.created_at|date:"d.m.Y" }}</small>
+                    </div>
+                    <a href="{% url 'guide_detail' guide.slug %}" class="btn btn-sm btn-outline-primary">
+                        Просмотр
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">Нет опубликованных гайдов</div>
+        {% endfor %}
+    </div>
+    
+    <!-- Отклонённые -->
+    <div class="tab-pane fade" id="rejected">
+        {% for guide in rejected_guides %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">{{ guide.title }}</h6>
+                        <small class="text-muted">{{ guide.author.username }} • {{ guide.created_at|date:"d.m.Y" }}</small>
+                    </div>
+                    <a href="{% url 'guide_detail' guide.slug %}" class="btn btn-sm btn-outline-primary">
+                        Просмотр
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">Нет отклонённых гайдов</div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'moderation_queue' %}" class="btn btn-outline-secondary">
+        ← К модерации сборок
+    </a>
+</div>
+{% endblock %}
