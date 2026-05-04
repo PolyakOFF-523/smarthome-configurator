@@ -75,9 +75,6 @@
                     {% endif %}
                 </div>
                 <h5 class="card-title">{{ guide.title }}</h5>
-                {% if guide.excerpt %}
-                <p class="card-text text-muted">{{ guide.excerpt|truncatechars:100 }}</p>
-                {% endif %}
                 <div class="text-muted small mb-3">
                     <i class="bi bi-eye"></i> {{ guide.views_count }} просмотров
                     <span class="ms-2"><i class="bi bi-calendar3"></i> {{ guide.created_at|date:"d.m.Y" }}</span>

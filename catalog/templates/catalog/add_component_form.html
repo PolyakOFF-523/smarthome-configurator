@@ -27,6 +27,21 @@
                     </p>
                 </div>
                 
+                <!-- ========== ПРЕДУПРЕЖДЕНИЯ О СОВМЕСТИМОСТИ ========== -->
+                {% if not compatible_check %}
+                <div class="alert alert-warning mb-3">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Внимание!</strong> Это устройство использует протокол 
+                    <strong>{{ component.get_protocol_display }}</strong>, 
+                    который отличается от основного протокола вашей сборки.
+                    <hr>
+                    <a href="{% url 'add_component_page' build.id %}" class="btn btn-sm btn-outline-warning">
+                        <i class="bi bi-arrow-left"></i> Выбрать другое устройство
+                    </a>
+                    <span class="text-muted ms-2">или продолжить, если уверены.</span>
+                </div>
+                {% endif %}
+                
                 <form method="post" action="{% url 'check_compatibility' build.id component.id 0 %}">
                     {% csrf_token %}
                     

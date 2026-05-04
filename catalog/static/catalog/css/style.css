@@ -616,3 +616,72 @@ a img, button img {
 .comment-item:hover .comment-actions {
     opacity: 1;
 }
+
+/* ================ КОМПАКТНЫЙ ПОДВАЛ ================ */
+
+.footer {
+    margin-top: 3rem;
+    background: linear-gradient(135deg, #0a0f1a 0%, #0f172a 100%) !important;
+}
+
+.footer a {
+    transition: color 0.2s ease;
+}
+
+.footer a:hover {
+    color: white !important;
+}
+
+.footer hr {
+    opacity: 0.3;
+}
+
+/* Для тёмной темы */
+[data-theme="dark"] .footer {
+    background: linear-gradient(135deg, #0f0f1a 0%, #0a0a14 100%) !important;
+}
+
+/* Для светлой темы */
+[data-theme="light"] .footer {
+    background: linear-gradient(135deg, #1e2a3a 0%, #0f172a 100%) !important;
+}
+
+/* Анимация для прогресс-бара */
+.progress-bar {
+    transition: width 0.8s ease-in-out;
+    background-size: 20px 20px;
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    );
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+    0% {
+        background-position: 40px 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
+}
+
+/* Цвета для разных процентов */
+.progress-bar.bg-success {
+    background-color: #198754 !important;
+}
+.progress-bar.bg-primary {
+    background-color: #0d6efd !important;
+}
+.progress-bar.bg-warning {
+    background-color: #ffc107 !important;
+}
+.progress-bar.bg-secondary {
+    background-color: #6c757d !important;
+}

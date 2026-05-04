@@ -27,6 +27,39 @@
             </div>
         </div>
         
+        <!-- Прогресс-бар заполнения профиля -->
+        <div class="card mb-4">
+            <div class="card-header bg-{{ stats.completion_color }} text-white">
+                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Заполнение профиля</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-2">
+                    <span class="display-6 fw-bold">{{ stats.profile_completion }}%</span>
+                    <p class="text-muted small">{{ stats.completion_message }}</p>
+                </div>
+                <div class="progress mb-3" style="height: 12px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-{{ stats.completion_color }}" 
+                         role="progressbar" 
+                         style="width: {{ stats.profile_completion }}%;" 
+                         aria-valuenow="{{ stats.profile_completion }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                    </div>
+                </div>
+                {% if stats.recommendations %}
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="bi bi-lightbulb"></i>
+                    <strong>Рекомендации:</strong>
+                    <ul class="mb-0 mt-1 small">
+                        {% for rec in stats.recommendations %}
+                        <li>{{ rec }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
         <!-- Статистика -->
         <div class="card">
             <div class="card-header bg-success text-white">

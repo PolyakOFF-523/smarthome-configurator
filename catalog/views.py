@@ -10,7 +10,6 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils.text import slugify
@@ -551,24 +550,37 @@ def remove_component(request, build_id, component_id):
 
 def add_component_page(request, build_id):
     build = get_object_or_404(Build, id=build_id)
-    project_id = request.session.get('project_id')
-    project = get_object_or_404(UserProject, id=project_id) if project_id else None
+    project = request.session.get('project_id')
     
-    components = Component.objects.filter(in_stock=True).order_by('category', 'name')
+    # Определяем доминирующий протокол в сборке
+    from .compatibility import CompatibilityChecker
+    checker = CompatibilityChecker(project)
+    main_protocol = checker.get_dominant_protocol(build)
+    
+    # Базовый запрос устройств
+    components = Component.objects.filter(in_stock=True)
+    
+    # Если есть доминирующий протокол, показываем только совместимые
+    if main_protocol:
+        components = components.filter(protocol=main_protocol)
+    
+    # Получаем категории с устройствами
     categories = Category.objects.filter(components__in=components).distinct()
     
     categories_with_components = []
     for category in categories:
-        categories_with_components.append({
-            'category': category,
-            'components': components.filter(category=category)
-        })
+        cat_components = components.filter(category=category)
+        if cat_components.exists():
+            categories_with_components.append({
+                'category': category,
+                'components': cat_components
+            })
     
     context = {
         'build': build,
         'project': project,
         'categories_with_components': categories_with_components,
-        'categories': categories,
+        'main_protocol': main_protocol,
     }
     return render(request, 'catalog/add_component.html', context)
 
@@ -576,13 +588,39 @@ def add_component_to_build(request, build_id, component_id):
     build = get_object_or_404(Build, id=build_id)
     component = get_object_or_404(Component, id=component_id)
     project_id = request.session.get('project_id')
+    
+    # Исправлено: получаем объект UserProject, а не просто id
     project = get_object_or_404(UserProject, id=project_id) if project_id else None
+    
+    # Предварительная проверка совместимости протоколов
+    from .compatibility import CompatibilityChecker
+    checker = CompatibilityChecker(project) if project else None
+    
+    compatible_check = True
+    if checker and build.buildcomponent_set.exists():
+        existing_components = [bc.component for bc in build.buildcomponent_set.all()]
+        if existing_components:
+            first = existing_components[0]
+            compatible, msg = checker.check_protocol(component, first)
+            compatible_check = compatible
+            if not compatible:
+                # Ищем альтернативу
+                alternative = checker.find_compatible_alternative(
+                    component, build, distance_from_hub=5
+                )
+                if alternative:
+                    messages.warning(
+                        request, 
+                        f'⚠️ Устройство {component.name} несовместимо по протоколу. '
+                        f'Рекомендуем: {alternative.name}'
+                    )
     
     context = {
         'build': build,
         'component': component,
         'project': project,
         'rooms': project.rooms.all() if project else [],
+        'compatible_check': compatible_check,
     }
     return render(request, 'catalog/add_component_form.html', context)
 
@@ -696,6 +734,45 @@ def profile(request):
     """Личный кабинет пользователя"""
     builds = request.user.builds.all().order_by('-id')
     
+    # Расчёт заполненности профиля
+    profile_fields = {
+        'username': bool(request.user.username),
+        'email': bool(request.user.email),
+        'first_name': bool(request.user.first_name),
+        'last_name': bool(request.user.last_name),
+        'has_builds': builds.exists(),
+        'has_published_builds': builds.filter(status='PUBLISHED').exists(),
+    }
+    
+    filled_count = sum(profile_fields.values())
+    total_fields = len(profile_fields)
+    profile_completion = int((filled_count / total_fields) * 100)
+    
+    # Определяем сообщение в зависимости от процента
+    if profile_completion == 100:
+        completion_message = "🎉 Отлично! Профиль полностью заполнен!"
+        completion_color = "success"
+    elif profile_completion >= 60:
+        completion_message = "👍 Хорошо! Осталось немного доработать"
+        completion_color = "primary"
+    elif profile_completion >= 30:
+        completion_message = "📝 Неплохо! Заполните ещё несколько полей"
+        completion_color = "warning"
+    else:
+        completion_message = "✨ Заполните профиль, чтобы получить больше возможностей"
+        completion_color = "secondary"
+    
+    # Список рекомендуемых действий
+    recommendations = []
+    if not request.user.email:
+        recommendations.append("Добавьте email для восстановления пароля")
+    if not request.user.first_name or not request.user.last_name:
+        recommendations.append("Укажите имя и фамилию")
+    if not builds.exists():
+        recommendations.append("Создайте свою первую сборку")
+    if not builds.filter(status='PUBLISHED').exists() and builds.exists():
+        recommendations.append("Опубликуйте сборку, чтобы поделиться с другими")
+    
     # Статистика
     stats = {
         'total_builds': builds.count(),
@@ -704,6 +781,10 @@ def profile(request):
         'rejected_builds': builds.filter(status='REJECTED').count(),
         'total_views': sum(build.views_count for build in builds),
         'total_likes': sum(build.likes.count() for build in builds),
+        'profile_completion': profile_completion,
+        'completion_message': completion_message,
+        'completion_color': completion_color,
+        'recommendations': recommendations,
     }
     
     context = {
@@ -886,7 +967,6 @@ def guide_create(request):
     }
     return render(request, 'catalog/guide_form.html', context)
 
-@login_required
 @login_required
 def guide_edit(request, guide_id):
     guide = get_object_or_404(Guide, id=guide_id, author=request.user)
