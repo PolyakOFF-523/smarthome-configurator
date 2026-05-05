@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
-
+from .validators import validate_image_file
 
 class Ecosystem(models.Model):
     """Экосистема умного дома (Яндекс, Xiaomi, Apple и т.д.)"""
@@ -127,7 +127,7 @@ class Component(models.Model):
     price = models.DecimalField("Цена", max_digits=10, decimal_places=2)
     
     # Внешний вид
-    image = models.ImageField("Основное изображение", upload_to='components/', blank=True, null=True)
+    image = models.ImageField("Основное изображение", upload_to='components/', blank=True, null=True,validators=[validate_image_file])
     description = models.TextField("Описание", blank=True)
     specifications = models.JSONField("Характеристики", default=dict, blank=True)
     
@@ -343,7 +343,7 @@ class Guide(models.Model):
     category = models.CharField("Категория", max_length=20, choices=CATEGORY_CHOICES, default='BEGINNER')
     content = models.TextField("Содержание")
     excerpt = models.CharField("Краткое описание", max_length=300, blank=True)
-    image = models.ImageField("Изображение", upload_to='guides/', blank=True, null=True)
+    image = models.ImageField("Изображение", upload_to='guides/', blank=True, null=True, validators=[validate_image_file])
     author = models.ForeignKey(
         User, 
         on_delete=models.SET_NULL, 
@@ -374,10 +374,15 @@ class Guide(models.Model):
     def get_absolute_url(self):
         return reverse('guide_detail', kwargs={'slug': self.slug})
 
+# Затем найдите класс GuideImage и измените поле image:
 class GuideImage(models.Model):
     """Изображения для гайда"""
     guide = models.ForeignKey(Guide, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField("Изображение", upload_to='guides/')
+    image = models.ImageField(
+        "Изображение", 
+        upload_to='guides/',
+        validators=[validate_image_file]  # ← ДОБАВИТЬ ЭТУ СТРОКУ
+    )
     caption = models.CharField("Подпись", max_length=200, blank=True)
     order = models.IntegerField("Порядок", default=0)
     

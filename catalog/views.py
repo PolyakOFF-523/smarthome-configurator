@@ -13,6 +13,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils.text import slugify
+from .forms import CustomUserCreationForm
+from .decorators import rate_limit
+
 
 # ================ КАТАЛОГ ================
 
@@ -711,21 +714,33 @@ def update_description(request, build_id):
 
 # ================ ПОЛЬЗОВАТЕЛИ ================
 
+# Для кастомного входа:
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, 'Регистрация прошла успешно!')
+            messages.success(request, '🎉 Регистрация прошла успешно! Добро пожаловать!')
             return redirect('index')
         else:
-            # Выводим конкретные ошибки
+            # Обрабатываем ошибки и убираем префиксы полей
             for field, errors in form.errors.items():
                 for error in errors:
-                    messages.error(request, f'{field}: {error}')
+                    # Убираем префикс для всех полей (Email:, password2:, и т.д.)
+                    clean_error = str(error)
+                    # Удаляем "Email: " если есть
+                    clean_error = clean_error.replace('Email: ', '')
+                    clean_error = clean_error.replace('email: ', '')
+                    # Удаляем "password2: " если есть
+                    clean_error = clean_error.replace('password2: ', '')
+                    clean_error = clean_error.replace('password1: ', '')
+                    # Удаляем "username: " если есть
+                    clean_error = clean_error.replace('username: ', '')
+                    
+                    messages.error(request, f'❌ {clean_error}')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     
     return render(request, 'catalog/register.html', {'form': form})
 

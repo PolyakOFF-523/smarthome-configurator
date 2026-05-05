@@ -1,0 +1,10 @@
+{% extends 'catalog/base.html' %}
+{% block title %}Ошибка сервера{% endblock %}
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-1 text-danger">500</h1>
+    <h3>Ошибка на сервере</h3>
+    <p>Что-то пошло не так. Мы уже работаем над исправлением.</p>
+    <a href="{% url 'index' %}" class="btn btn-primary">На главную</a>
+</div>
+{% endblock %}
